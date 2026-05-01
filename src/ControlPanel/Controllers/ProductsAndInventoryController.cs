@@ -3,6 +3,7 @@ using DeliverySystem.Application.Features.Categories.Commands;
 using DeliverySystem.Application.Features.Products.Commands;
 using DeliverySystem.Application.Features.Warehouses.Commands;
 using DeliverySystem.Application.Features.Inventories.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using ClosedXML.Excel;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ public class CategoriesController(IMediator mediator) : Controller
     {
         if (!ModelState.IsValid) return View(dto);
         await mediator.Send(new CreateCategoryCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة تصنيف", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة تصنيف: {dto.Name}"));
         TempData["Success"] = "تم إضافة التصنيف بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -43,6 +45,7 @@ public class CategoriesController(IMediator mediator) : Controller
     {
         if (!ModelState.IsValid) return View(dto);
         await mediator.Send(new UpdateCategoryCommand(id, dto.Name));
+        await mediator.Send(new LogActivityCommand("تعديل تصنيف", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تعديل التصنيف رقم {id}"));
         TempData["Success"] = "تم تعديل التصنيف";
         return RedirectToAction(nameof(Index));
     }
@@ -69,6 +72,7 @@ public class WarehousesController(IMediator mediator) : Controller
     {
         if (!ModelState.IsValid) return View(dto);
         await mediator.Send(new CreateWarehouseCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة مستودع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة مستودع: {dto.Name}"));
         TempData["Success"] = "تم إضافة المستودع";
         return RedirectToAction(nameof(Index));
     }
@@ -129,6 +133,7 @@ public class ProductsController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new CreateProductCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة منتج", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة منتج: {dto.Name}"));
         TempData["Success"] = "تم إضافة المنتج بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -164,6 +169,7 @@ public class ProductsController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new UpdateProductCommand(id, dto));
+        await mediator.Send(new LogActivityCommand("تعديل منتج", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تعديل المنتج رقم {id}"));
         TempData["Success"] = "تم تعديل المنتج";
         return RedirectToAction(nameof(Index));
     }
@@ -234,6 +240,7 @@ public class InventoryController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new UpsertInventoryCommand(dto));
+        await mediator.Send(new LogActivityCommand("تحديث مخزون", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", "تم تحديث بيانات المخزون"));
         TempData["Success"] = "تم تحديث المخزون";
         return RedirectToAction(nameof(Index));
     }

@@ -1,4 +1,4 @@
-@model IEnumerable<CustomerDto>
+﻿@model IEnumerable<CustomerDto>
 @using DeliverySystem.Application.DTOs
 @{
     ViewData["Title"] = "إدارة العملاء";
@@ -97,7 +97,7 @@
                             <td>@(c.EmployeeName ?? "—")</td>
                             <td><span class="badge bg-info">@c.InvoiceCount</span></td>
                             <td class="@(c.TotalDebt > 0 ? "text-danger fw-bold" : "text-success")">
-                                @String.Format("{0:N0}", c.TotalDebt) ر.س
+                                @String.Format("{0:N0}", c.TotalDebt) د.ع
                             </td>
                             <td>
                                 @if (c.IsApproved)

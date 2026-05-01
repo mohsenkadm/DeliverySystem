@@ -1,4 +1,4 @@
-@using DeliverySystem.Domain.Enums
+﻿@using DeliverySystem.Domain.Enums
 @{
     ViewData["Title"] = "تقرير تحصيل النقد";
     var payments = ViewBag.Payments as List<DeliverySystem.Domain.Entities.Payment> ?? new();
@@ -25,9 +25,9 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.GrandTotal).ToString("N0")</div><div class="stat-label">إجمالي التحصيلات (ر.س)</div></div></div></div>
-    <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.Verified).ToString("N0")</div><div class="stat-label">محقق (ر.س)</div></div></div></div>
-    <div class="col-md-4"><div class="stat-card card text-white bg-warning" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.Pending).ToString("N0")</div><div class="stat-label">بانتظار التحقق (ر.س)</div></div></div></div>
+    <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.GrandTotal).ToString("N0"))</div><div class="stat-label">إجمالي التحصيلات (د.ع)</div></div></div></div>
+    <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.Verified).ToString("N0"))</div><div class="stat-label">محقق (د.ع)</div></div></div></div>
+    <div class="col-md-4"><div class="stat-card card text-white bg-warning" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.Pending).ToString("N0"))</div><div class="stat-label">بانتظار التحقق (د.ع)</div></div></div></div>
 </div>
 
 <div class="row g-4 mb-4">
@@ -57,7 +57,7 @@
                         <tr>
                             <td>@p.PaidAt.ToString("yyyy/MM/dd HH:mm")</td>
                             <td><span class="badge bg-secondary">@(p.Type switch { PaymentType.CustomerToDriver => "عميل→سائق", PaymentType.CustomerToRepresentative => "عميل→مندوب", PaymentType.DriverToCompany => "سائق→إدارة", PaymentType.RepresentativeToCompany => "مندوب→إدارة", _ => "" })</span></td>
-                            <td class="fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td class="fw-bold text-success">@p.Amount.ToString("N2") د.ع</td>
                             <td>@(p.PaidByEmployee?.FullName ?? "—")</td>
                             <td>@(p.Customer?.FullName ?? "—")</td>
                             <td>@(p.IsVerified ? Html.Raw("<span class='badge bg-success'>محققة</span>") : Html.Raw("<span class='badge bg-warning text-dark'>معلقة</span>"))</td>
@@ -79,7 +79,7 @@ const typeLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.T
 const typeTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.TypeTotals ?? new List<decimal>()));
 
 new Chart(document.getElementById('empChart'), {
-    type: 'bar', data: { labels: empLabels, datasets: [{ label: 'المحصّل (ر.س)', data: empTotals, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 5 }] },
+    type: 'bar', data: { labels: empLabels, datasets: [{ label: 'المحصّل (د.ع)', data: empTotals, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 5 }] },
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
 });
 new Chart(document.getElementById('typeChart'), {

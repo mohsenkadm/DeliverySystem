@@ -1,6 +1,7 @@
 using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Offers.Commands;
 using DeliverySystem.Application.Features.Products.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using DeliverySystem.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,7 @@ public class OffersController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new CreateOfferCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة عرض", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة عرض جديد: {dto.Name}"));
         TempData["Success"] = "تم إضافة العرض بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -77,6 +79,7 @@ public class OffersController(IMediator mediator) : Controller
         }
         var ok = await mediator.Send(new UpdateOfferCommand(id, dto));
         if (!ok) return NotFound();
+        await mediator.Send(new LogActivityCommand("تعديل عرض", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تحديث العرض رقم {id}"));
         TempData["Success"] = "تم تحديث العرض بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -85,6 +88,7 @@ public class OffersController(IMediator mediator) : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var ok = await mediator.Send(new DeleteOfferCommand(id));
+        if (ok) await mediator.Send(new LogActivityCommand("حذف عرض", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم حذف العرض رقم {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تم حذف العرض بنجاح" : "حدث خطأ أثناء الحذف";
         return RedirectToAction(nameof(Index));
     }

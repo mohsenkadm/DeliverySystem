@@ -1,4 +1,4 @@
-@model IEnumerable<OfferDto>
+﻿@model IEnumerable<OfferDto>
 @using DeliverySystem.Application.DTOs
 @using DeliverySystem.Domain.Enums
 @{
@@ -61,7 +61,7 @@
                         <tr>
                             <td class="text-muted small">@i</td>
                             <td class="fw-bold">@o.Name</td>
-                            <td>@(o.ProductName ?? "<span class='badge bg-secondary'>جميع المنتجات</span>")</td>
+                            <td>@Html.Raw(o.ProductName ?? "<span class='badge bg-secondary'>جميع المنتجات</span>")</td>
                             <td>
                                 @{
                                     var typeClass = o.OfferType switch {
@@ -77,7 +77,7 @@
                                 @if (o.OfferType is OfferType.DiscountPercentage)
                                 { <span>@o.DiscountValue%</span> }
                                 else if (o.OfferType is OfferType.FixedPrice)
-                                { <span>@o.DiscountValue ر.س</span> }
+                                { <span>@o.DiscountValue د.ع</span> }
                                 else if (o.FreeQuantity.HasValue)
                                 { <span>+@o.FreeQuantity مجاني</span> }
                                 else { <span class="text-muted">—</span> }

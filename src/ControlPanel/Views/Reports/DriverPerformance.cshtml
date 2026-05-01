@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "أداء السائقين";
     var drivers = ViewBag.Drivers as System.Collections.IEnumerable;
 }
@@ -32,7 +32,7 @@
     </div>
     <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
         <div class="card h-100">
-            <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>المبالغ المحصّلة (ر.س)</div>
+            <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>المبالغ المحصّلة (د.ع)</div>
             <div class="card-body"><div style="height:300px"><canvas id="collectChart"></canvas></div></div>
         </div>
     </div>
@@ -61,7 +61,7 @@
                             </div>
                             <small class="text-muted">@pct%</small>
                         </td>
-                        <td class="text-end fw-bold text-success">@d.TotalCollected.ToString("N2") ر.س</td>
+                        <td class="text-end fw-bold text-success">@d.TotalCollected.ToString("N2") د.ع</td>
                     </tr>
                     row++;
                 }
@@ -86,7 +86,7 @@ new Chart(document.getElementById('ordersChart'), {
     ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
 });
 new Chart(document.getElementById('collectChart'), {
-    type: 'bar', data: { labels: driverLabels, datasets: [{ label: 'المحصّل (ر.س)', data: driverCollected, backgroundColor: 'rgba(245,158,11,.7)', borderRadius: 4 }] },
+    type: 'bar', data: { labels: driverLabels, datasets: [{ label: 'المحصّل (د.ع)', data: driverCollected, backgroundColor: 'rgba(245,158,11,.7)', borderRadius: 4 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
 });
 

@@ -1,4 +1,4 @@
-using DeliverySystem.Application.DTOs;
+﻿using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Invoices.Commands;
 using DeliverySystem.Application.Features.Products.Commands;
 using DeliverySystem.Domain.Enums;
@@ -161,9 +161,9 @@ public class MobileCustomerController(IMediator mediator, ApplicationDbContext d
         html.Append("<table><thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الإجمالي</th></tr></thead>");
         html.Append($"<tbody>{rows}</tbody></table>");
         html.Append("<div class=\"total\">");
-        html.Append($"<p>الإجمالي: {inv.TotalAmount:N2} ر.س</p>");
-        html.Append($"<p>المدفوع: {inv.PaidAmount:N2} ر.س</p>");
-        html.Append($"<p>المتبقي: {inv.RemainingAmount:N2} ر.س</p>");
+        html.Append($"<p>الإجمالي: {inv.TotalAmount:N2} د.ع</p>");
+        html.Append($"<p>المدفوع: {inv.PaidAmount:N2} د.ع</p>");
+        html.Append($"<p>المتبقي: {inv.RemainingAmount:N2} د.ع</p>");
         html.Append("</div>");
         html.Append("<button onclick=\"window.print()\">طباعة</button>");
         html.Append("</body></html>");

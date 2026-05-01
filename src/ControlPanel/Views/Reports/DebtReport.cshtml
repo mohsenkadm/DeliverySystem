@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "تقرير الديون";
     var customers = ViewBag.Customers as System.Collections.IEnumerable;
 }
@@ -17,7 +17,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label small mb-1">الحد الأدنى للدين (ر.س)</label>
+                <label class="form-label small mb-1">الحد الأدنى للدين (د.ع)</label>
                 <input type="number" name="minDebt" value="@ViewBag.MinDebt" step="0.01" min="0" class="form-control form-control-sm" placeholder="0" />
             </div>
             <div class="col-auto">
@@ -46,8 +46,8 @@
     <div class="col-md-6">
         <div class="stat-card card text-white bg-danger" data-aos="zoom-in">
             <div class="card-body text-center">
-                <div class="stat-number">@((decimal)ViewBag.TotalDebt).ToString("N0")</div>
-                <div class="stat-label">إجمالي الديون (ر.س)</div>
+                <div class="stat-number">@(((decimal)ViewBag.TotalDebt).ToString("N0"))</div>
+                <div class="stat-label">إجمالي الديون (د.ع)</div>
             </div>
         </div>
     </div>
@@ -89,9 +89,9 @@
                             <td>@r</td>
                             <td><strong>@c.FullName</strong><br/><small class="text-muted">@c.Phone</small></td>
                             <td>@(c.StoreName ?? "—")</td>
-                            <td class="text-end">@c.TotalAmount.ToString("N2") ر.س</td>
-                            <td class="text-end text-success">@c.PaidAmount.ToString("N2") ر.س</td>
-                            <td class="text-end fw-bold text-danger">@c.Debt.ToString("N2") ر.س</td>
+                            <td class="text-end">@c.TotalAmount.ToString("N2") د.ع</td>
+                            <td class="text-end text-success">@c.PaidAmount.ToString("N2") د.ع</td>
+                            <td class="text-end fw-bold text-danger">@c.Debt.ToString("N2") د.ع</td>
                             <td>@(c.LastInvoice?.ToString("yyyy/MM/dd") ?? "—")</td>
                             <td class="no-print">
                                 <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">

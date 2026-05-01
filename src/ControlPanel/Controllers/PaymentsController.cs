@@ -1,5 +1,6 @@
 using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Payments.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,7 @@ public class PaymentsController(IMediator mediator) : Controller
     {
         var cashierId = int.Parse(HttpContext.Session.GetString("AdminId") ?? "0");
         var ok = await mediator.Send(new VerifyPaymentCommand(id, cashierId));
+        if (ok) await mediator.Send(new LogActivityCommand("تحقق دفعة", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم التحقق من الدفعة رقم {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تم التحقق من الدفعة وتسجيلها" : "الدفعة غير موجودة أو محققة مسبقاً";
         return RedirectToAction(nameof(Index));
     }

@@ -1,4 +1,4 @@
-@model IEnumerable<DeliverySystem.Application.DTOs.PaymentDto>
+﻿@model IEnumerable<DeliverySystem.Application.DTOs.PaymentDto>
 @{
     ViewData["Title"] = "سجل المدفوعات";
 }
@@ -15,16 +15,16 @@
     <div class="col-md-3">
         <div class="stat-card card text-white bg-success" data-aos="zoom-in">
             <div class="card-body text-center">
-                <div class="stat-number">@Model.Where(p=>p.IsVerified).Sum(p=>p.Amount).ToString("N0")</div>
-                <div class="stat-label">إجمالي المحقق (ر.س)</div>
+                <div class="stat-number">@(Model.Where(p=>p.IsVerified).Sum(p=>p.Amount).ToString("N0"))</div>
+                <div class="stat-label">إجمالي المحقق (د.ع)</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card card text-white bg-warning" data-aos="zoom-in" data-aos-delay="100">
             <div class="card-body text-center">
-                <div class="stat-number">@Model.Where(p=>!p.IsVerified).Sum(p=>p.Amount).ToString("N0")</div>
-                <div class="stat-label">غير محقق (ر.س)</div>
+                <div class="stat-number">@(Model.Where(p=>!p.IsVerified).Sum(p=>p.Amount).ToString("N0"))</div>
+                <div class="stat-label">غير محقق (د.ع)</div>
             </div>
         </div>
     </div>
@@ -81,7 +81,7 @@
                         <tr>
                             <td>@p.Id</td>
                             <td><span class="badge bg-secondary">@p.TypeText</span></td>
-                            <td class="fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td class="fw-bold text-success">@p.Amount.ToString("N2") د.ع</td>
                             <td>@(p.InvoiceNumber ?? "—")</td>
                             <td>@(p.CustomerName ?? "—")</td>
                             <td>@(p.PaidByEmployeeName ?? "—")</td>

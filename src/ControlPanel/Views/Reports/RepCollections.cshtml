@@ -1,4 +1,4 @@
-@using DeliverySystem.Domain.Enums
+﻿@using DeliverySystem.Domain.Enums
 @{
     ViewData["Title"] = "تحصيلات المندوبين";
     var payments = ViewBag.Payments as List<DeliverySystem.Domain.Entities.Payment> ?? new();
@@ -55,7 +55,7 @@
                         <div class="progress" style="height:8px">
                             <div class="progress-bar @(pct>=90?"bg-success":pct>=60?"bg-warning":"bg-danger")" style="width:@pct%"></div>
                         </div>
-                        <small class="text-muted">حصّل: @rep.Collected.ToString("N0") / سلّم: @rep.Submitted.ToString("N0") ر.س</small>
+                        <small class="text-muted">حصّل: @rep.Collected.ToString("N0") / سلّم: @rep.Submitted.ToString("N0") د.ع</small>
                     </div>
                 }
             </div>
@@ -78,7 +78,7 @@
                             <td><span class="badge @(p.Type==PaymentType.CustomerToRepresentative?"bg-info":"bg-success")">@(p.Type==PaymentType.CustomerToRepresentative?"تحصيل من عميل":"تسليم للإدارة")</span></td>
                             <td>@(p.Customer?.FullName ?? "—")</td>
                             <td>@(p.Invoice?.InvoiceNumber ?? "—")</td>
-                            <td class="text-end fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td class="text-end fw-bold text-success">@p.Amount.ToString("N2") د.ع</td>
                             <td>@(p.IsVerified ? Html.Raw("<span class='badge bg-success'>✓</span>") : Html.Raw("<span class='badge bg-warning text-dark'>معلق</span>"))</td>
                         </tr>
                     }

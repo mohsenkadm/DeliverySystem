@@ -2,6 +2,7 @@ using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Customers.Commands;
 using DeliverySystem.Application.Features.Customers.Queries;
 using DeliverySystem.Application.Features.Employees.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using ClosedXML.Excel;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,7 @@ public class CustomersController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new CreateCustomerCommand(dto, IsApproved: false));
+        await mediator.Send(new LogActivityCommand("إضافة عميل", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة عميل جديد: {dto.FullName}"));
         TempData["Success"] = "تم إضافة العميل بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -74,6 +76,7 @@ public class CustomersController(IMediator mediator) : Controller
             ViewBag.Employees = await mediator.Send(new GetAllEmployeesQuery()); ViewBag.AllRegions = AllRegions; return View(dto);
         }
         await mediator.Send(new UpdateCustomerCommand(id, dto));
+        await mediator.Send(new LogActivityCommand("تعديل عميل", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تعديل بيانات العميل رقم {id}"));
         TempData["Success"] = "تم تعديل بيانات العميل";
         return RedirectToAction(nameof(Index));
     }
@@ -89,6 +92,7 @@ public class CustomersController(IMediator mediator) : Controller
     public async Task<IActionResult> Approve(int id)
     {
         await mediator.Send(new ApproveCustomerCommand(id));
+        await mediator.Send(new LogActivityCommand("موافقة عميل", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تمت الموافقة على العميل رقم {id}"));
         TempData["Success"] = "تمت الموافقة على العميل";
         return RedirectToAction(nameof(Index));
     }
@@ -97,6 +101,7 @@ public class CustomersController(IMediator mediator) : Controller
     public async Task<IActionResult> Delete(int id)
     {
         await mediator.Send(new DeleteCustomerCommand(id));
+        await mediator.Send(new LogActivityCommand("حذف عميل", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم حذف العميل رقم {id}"));
         TempData["Success"] = "تم حذف العميل";
         return RedirectToAction(nameof(Index));
     }

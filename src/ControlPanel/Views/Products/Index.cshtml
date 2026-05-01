@@ -1,4 +1,4 @@
-@model IEnumerable<ProductDto>
+﻿@model IEnumerable<ProductDto>
 @using DeliverySystem.Application.DTOs
 @{
     ViewData["Title"] = "إدارة المنتجات";
@@ -71,11 +71,11 @@
                     <div class="mb-2">
                         <div class="d-flex justify-content-between">
                             <small class="text-muted">جملة</small>
-                            <span class="fw-bold text-warning">@String.Format("{0:N2}", p.WholesalePrice) ر.س</span>
+                            <span class="fw-bold text-warning">@String.Format("{0:N2}", p.WholesalePrice) د.ع</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <small class="text-muted">مفرق</small>
-                            <span class="fw-bold text-primary">@String.Format("{0:N2}", p.RetailPrice) ر.س</span>
+                            <span class="fw-bold text-primary">@String.Format("{0:N2}", p.RetailPrice) د.ع</span>
                         </div>
                     </div>
 

@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "لوحة القيادة";
 }
 
@@ -17,7 +17,7 @@
     <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
         <div class="stat-card success">
             <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalSalesToday) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalSalesToday) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">مبيعات اليوم</div>
         </div>
     </div>
@@ -38,7 +38,7 @@
     <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="240">
         <div class="stat-card danger">
             <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
-            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalDebt) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalDebt) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">الديون المتبقية</div>
         </div>
     </div>
@@ -168,9 +168,9 @@
                                 <td><code>@inv.InvoiceNumber</code></td>
                                 <td>@inv.Customer?.FullName</td>
                                 @* <td>@(inv.Driver?.FullName ?? "-")</td> *@
-                                <td>@String.Format("{0:N2}", inv.TotalAmount) ر.س</td>
+                                <td>@String.Format("{0:N2}", inv.TotalAmount) د.ع</td>
                                 <td class="@((inv.TotalAmount - inv.PaidAmount) > 0 ? "text-danger" : "text-success")">
-                                    @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) ر.س
+                                    @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) د.ع
                                 </td>
                                 <td>
                                     @{
@@ -250,7 +250,7 @@ new Chart(document.getElementById('salesChart'), {
     data: {
         labels: salesLabels,
         datasets: [{
-            label: 'المبيعات (ر.س)',
+            label: 'المبيعات (د.ع)',
             data: salesData,
             borderColor: '#4f46e5',
             backgroundColor: 'rgba(79,70,229,.1)',

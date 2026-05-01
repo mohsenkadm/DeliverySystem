@@ -3,6 +3,7 @@ using DeliverySystem.Application.Features.Employees.Commands;
 using DeliverySystem.Application.Features.Invoices.Commands;
 using DeliverySystem.Application.Features.Products.Commands;
 using DeliverySystem.Application.Features.SalesReturns.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using DeliverySystem.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,7 @@ public class SalesReturnsController(IMediator mediator) : Controller
         }
 
         await mediator.Send(new CreateSalesReturnCommand(dto, adminId));
+        await mediator.Send(new LogActivityCommand("إنشاء مرتجع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إنشاء طلب مرتجع جديد"));
         TempData["Success"] = "تم إنشاء طلب المرتجع بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -58,6 +60,7 @@ public class SalesReturnsController(IMediator mediator) : Controller
     {
         var adminId = int.TryParse(HttpContext.Session.GetString("AdminId"), out var aid) ? aid : 1;
         var ok = await mediator.Send(new ApproveSalesReturnByManagerCommand(id, adminId));
+        if (ok) await mediator.Send(new LogActivityCommand("موافقة مدير مرتجع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"موافقة المدير على المرتجع {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تمت الموافقة من المدير" : "لا يمكن تنفيذ هذا الإجراء";
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -66,6 +69,7 @@ public class SalesReturnsController(IMediator mediator) : Controller
     public async Task<IActionResult> ApproveWarehouse(int id)
     {
         var ok = await mediator.Send(new ApproveSalesReturnByWarehouseCommand(id));
+        if (ok) await mediator.Send(new LogActivityCommand("موافقة مستودع مرتجع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"موافقة المستودع على المرتجع {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تمت الموافقة من المستودع" : "لا يمكن تنفيذ هذا الإجراء";
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -74,6 +78,7 @@ public class SalesReturnsController(IMediator mediator) : Controller
     public async Task<IActionResult> Complete(int id)
     {
         var ok = await mediator.Send(new CompleteSalesReturnCommand(id));
+        if (ok) await mediator.Send(new LogActivityCommand("إكمال مرتجع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إكمال المرتجع {id} وتحديث المخزون"));
         TempData[ok ? "Success" : "Error"] = ok ? "تم إكمال المرتجع وتحديث المخزون" : "لا يمكن تنفيذ هذا الإجراء";
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -82,6 +87,7 @@ public class SalesReturnsController(IMediator mediator) : Controller
     public async Task<IActionResult> Reject(int id, string? reason)
     {
         var ok = await mediator.Send(new RejectSalesReturnCommand(id, reason));
+        if (ok) await mediator.Send(new LogActivityCommand("رفض مرتجع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم رفض المرتجع {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تم رفض طلب المرتجع" : "لا يمكن تنفيذ هذا الإجراء";
         return RedirectToAction(nameof(Details), new { id });
     }

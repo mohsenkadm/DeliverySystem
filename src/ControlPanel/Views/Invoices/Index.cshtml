@@ -1,4 +1,4 @@
-@model IEnumerable<InvoiceDto>
+﻿@model IEnumerable<InvoiceDto>
 @{
     ViewData["Title"] = "إدارة الفواتير";
 }
@@ -16,21 +16,21 @@
     <div class="col-md-4" data-aos="fade-up">
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-coins"></i></div>
-            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalAmount) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalAmount) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">إجمالي الفواتير</div>
         </div>
     </div>
     <div class="col-md-4" data-aos="fade-up" data-aos-delay="80">
         <div class="stat-card success">
             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalPaid) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalPaid) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">إجمالي المدفوع</div>
         </div>
     </div>
     <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
         <div class="stat-card danger">
             <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
-            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalRemaining) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalRemaining) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">الديون المتبقية</div>
         </div>
     </div>

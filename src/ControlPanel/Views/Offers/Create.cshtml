@@ -1,4 +1,4 @@
-@model CreateOfferDto
+﻿@model CreateOfferDto
 @using DeliverySystem.Application.DTOs
 @using DeliverySystem.Domain.Enums
 @{
@@ -139,7 +139,7 @@ function toggleFields() {
     discField.style.display = (type === 3 || type === 4 || type === 5) ? 'block' : 'none';
     freeField.style.display  = (type <= 2) ? 'block' : 'none';
     if (type === 3) unit.textContent = '%';
-    else if (type === 4) unit.textContent = 'ر.س';
+    else if (type === 4) unit.textContent = 'د.ع';
     else unit.textContent = '';
 }
 document.addEventListener('DOMContentLoaded', toggleFields);

@@ -3,6 +3,7 @@ using DeliverySystem.Application.Features.Invoices.Commands;
 using DeliverySystem.Application.Features.Customers.Queries;
 using DeliverySystem.Application.Features.Employees.Commands;
 using DeliverySystem.Application.Features.Products.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using DeliverySystem.Domain.Enums;
 using ClosedXML.Excel;
 using MediatR;
@@ -53,6 +54,7 @@ public class InvoicesController(IMediator mediator) : Controller
             return View(dto);
         }
         var result = await mediator.Send(new CreateInvoiceCommand(dto));
+        await mediator.Send(new LogActivityCommand("إنشاء فاتورة", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إنشاء الفاتورة {result.InvoiceNumber}"));
         TempData["Success"] = $"تم إنشاء الفاتورة {result.InvoiceNumber} بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -61,6 +63,7 @@ public class InvoicesController(IMediator mediator) : Controller
     public async Task<IActionResult> Accept(int id)
     {
         await mediator.Send(new UpdateInvoiceStatusCommand(id, InvoiceStatus.Accepted));
+        await mediator.Send(new LogActivityCommand("قبول فاتورة", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم قبول الفاتورة رقم {id}"));
         TempData["Success"] = "تم قبول الفاتورة";
         return RedirectToAction(nameof(Index));
     }
@@ -69,6 +72,7 @@ public class InvoicesController(IMediator mediator) : Controller
     public async Task<IActionResult> Reject(int id)
     {
         await mediator.Send(new UpdateInvoiceStatusCommand(id, InvoiceStatus.Rejected));
+        await mediator.Send(new LogActivityCommand("رفض فاتورة", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم رفض الفاتورة رقم {id}"));
         TempData["Success"] = "تم رفض الفاتورة";
         return RedirectToAction(nameof(Index));
     }
@@ -77,6 +81,7 @@ public class InvoicesController(IMediator mediator) : Controller
     public async Task<IActionResult> Defer(int id)
     {
         await mediator.Send(new UpdateInvoiceStatusCommand(id, InvoiceStatus.Deferred));
+        await mediator.Send(new LogActivityCommand("تأجيل فاتورة", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تأجيل الفاتورة رقم {id}"));
         TempData["Success"] = "تم تأجيل الفاتورة";
         return RedirectToAction(nameof(Index));
     }
@@ -93,6 +98,7 @@ public class InvoicesController(IMediator mediator) : Controller
     public async Task<IActionResult> AssignDriver(int id, int employeeId)
     {
         await mediator.Send(new AssignDriverToInvoiceCommand(id, employeeId));
+        await mediator.Send(new LogActivityCommand("تعيين سائق", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تعيين سائق للفاتورة رقم {id}"));
         TempData["Success"] = "تم تعيين السائق وتحويل الفاتورة للتوصيل";
         return RedirectToAction(nameof(Details), new { id });
     }
@@ -118,7 +124,8 @@ public class InvoicesController(IMediator mediator) : Controller
     {
         if (amount <= 0) { TempData["Error"] = "المبلغ يجب أن يكون أكبر من صفر"; return RedirectToAction(nameof(Details), new { id }); }
         await mediator.Send(new PayInvoiceCommand(id, amount));
-        TempData["Success"] = $"تم تسجيل دفعة {amount:N2} ر.س";
+        await mediator.Send(new LogActivityCommand("دفعة جزئية", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تسجيل دفعة {amount:N2} د.ع للفاتورة {id}"));
+        TempData["Success"] = $"تم تسجيل دفعة {amount:N2} د.ع";
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -128,6 +135,7 @@ public class InvoicesController(IMediator mediator) : Controller
         var invoice = await mediator.Send(new GetInvoiceByIdQuery(id));
         if (invoice is null) return NotFound();
         await mediator.Send(new PayInvoiceCommand(id, invoice.RemainingAmount));
+        await mediator.Send(new LogActivityCommand("دفع كامل", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تسجيل الدفع الكامل للفاتورة {id}"));
         TempData["Success"] = "تم تسجيل الدفع الكامل للفاتورة";
         return RedirectToAction(nameof(Index));
     }

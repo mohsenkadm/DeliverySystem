@@ -1,4 +1,4 @@
-using DeliverySystem.Application.DTOs;
+﻿using DeliverySystem.Application.DTOs;
 using DeliverySystem.Domain.Entities;
 using DeliverySystem.Domain.Enums;
 using DeliverySystem.Domain.Interfaces;
@@ -65,7 +65,7 @@ public class CreateInvoiceCommandHandler(IUnitOfWork uow)
                             break;
                         case OfferType.FixedPrice when offer.DiscountValue.HasValue:
                             det.UnitPrice = offer.DiscountValue.Value;
-                            offerSummaries.Add($"سعر ثابت {offer.DiscountValue} ر.س: {offer.Name}");
+                            offerSummaries.Add($"سعر ثابت {offer.DiscountValue} د.ع: {offer.Name}");
                             break;
                         case OfferType.CustomVariable when offer.DiscountValue.HasValue:
                             det.Discount += offer.DiscountValue.Value;

@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "تحليل البيانات";
 }
 
@@ -52,7 +52,7 @@ const repData      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag
 // Monthly Sales
 new Chart(document.getElementById('monthlySalesChart'), {
     type: 'bar',
-    data: { labels: months, datasets: [{ label: 'المبيعات (ر.س)', data: monthly, backgroundColor: 'rgba(79,70,229,.7)', borderRadius: 6 }] },
+    data: { labels: months, datasets: [{ label: 'المبيعات (د.ع)', data: monthly, backgroundColor: 'rgba(79,70,229,.7)', borderRadius: 6 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
 });
 
@@ -66,14 +66,14 @@ new Chart(document.getElementById('statusChart'), {
 // Top Customers
 new Chart(document.getElementById('topCustomersChart'), {
     type: 'horizontalBar' in Chart.controllers ? 'horizontalBar' : 'bar',
-    data: { labels: custLabels, datasets: [{ label: 'المبيعات (ر.س)', data: custData, backgroundColor: 'rgba(6,182,212,.7)', borderRadius: 6 }] },
+    data: { labels: custLabels, datasets: [{ label: 'المبيعات (د.ع)', data: custData, backgroundColor: 'rgba(6,182,212,.7)', borderRadius: 6 }] },
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
 });
 
 // Representatives
 new Chart(document.getElementById('repChart'), {
     type: 'bar',
-    data: { labels: repLabels, datasets: [{ label: 'المحصّل (ر.س)', data: repData, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 6 }] },
+    data: { labels: repLabels, datasets: [{ label: 'المحصّل (د.ع)', data: repData, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 6 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
 });
 </script>

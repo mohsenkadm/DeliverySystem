@@ -1,4 +1,4 @@
-@model CreateInvoiceDto
+﻿@model CreateInvoiceDto
 @{
     ViewData["Title"] = "إنشاء فاتورة جديدة";
 }
@@ -72,7 +72,7 @@
                                             {
                                                 foreach (var p in ViewBag.Products)
                                                 {
-                                                    <option value="@p.Id" data-price="@p.RetailPrice">@p.Name (@String.Format("{0:N2}", p.RetailPrice) ر.س)</option>
+                                                    <option value="@p.Id" data-price="@p.RetailPrice">@p.Name (@String.Format("{0:N2}", p.RetailPrice) د.ع)</option>
                                                 }
                                             }
                                         </select>
@@ -87,7 +87,7 @@
                             <tfoot>
                                 <tr class="table-primary">
                                     <td colspan="4" class="text-end fw-bold">الإجمالي الكلي</td>
-                                    <td colspan="2"><strong id="grandTotal" class="text-primary fs-5">0.00 ر.س</strong></td>
+                                    <td colspan="2"><strong id="grandTotal" class="text-primary fs-5">0.00 د.ع</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -119,7 +119,7 @@ const products = @Html.Raw(productsJson);
 function addRow() {
     const idx = rowCount++;
     const options = products.map(p =>
-        `<option value="${p.id}" data-price="${p.price}">${p.name} (${p.price.toFixed(2)} ر.س)</option>`
+        `<option value="${p.id}" data-price="${p.price}">${p.name} (${p.price.toFixed(2)} د.ع)</option>`
     ).join('');
     const tr = document.createElement('tr');
     tr.id = `row-${idx}`;
@@ -167,7 +167,7 @@ function removeRow(idx) {
 function updateGrandTotal() {
     let total = 0;
     document.querySelectorAll('.row-total').forEach(el => { total += parseFloat(el.textContent) || 0; });
-    document.getElementById('grandTotal').textContent = total.toFixed(2) + ' ر.س';
+    document.getElementById('grandTotal').textContent = total.toFixed(2) + ' د.ع';
 }
 
 // ربط حدث تغيير المنتج للسطر الأول

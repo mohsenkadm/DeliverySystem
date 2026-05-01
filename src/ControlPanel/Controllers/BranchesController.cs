@@ -1,5 +1,6 @@
 using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Branches.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using ClosedXML.Excel;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ public class BranchesController(IMediator mediator) : Controller
     {
         if (!ModelState.IsValid) return View(dto);
         await mediator.Send(new CreateBranchCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة فرع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة فرع جديد: {dto.Name}"));
         TempData["Success"] = "تم إضافة الفرع بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -45,6 +47,7 @@ public class BranchesController(IMediator mediator) : Controller
         if (!ModelState.IsValid) { ViewBag.BranchId = id; return View(dto); }
         var ok = await mediator.Send(new UpdateBranchCommand(id, dto));
         if (!ok) return NotFound();
+        await mediator.Send(new LogActivityCommand("تعديل فرع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تحديث الفرع رقم {id}"));
         TempData["Success"] = "تم تحديث الفرع بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -60,6 +63,7 @@ public class BranchesController(IMediator mediator) : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var ok = await mediator.Send(new DeleteBranchCommand(id));
+        if (ok) await mediator.Send(new LogActivityCommand("حذف فرع", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم حذف الفرع رقم {id}"));
         TempData[ok ? "Success" : "Error"] = ok ? "تم حذف الفرع بنجاح" : "حدث خطأ أثناء الحذف";
         return RedirectToAction(nameof(Index));
     }

@@ -1,4 +1,4 @@
-@model CustomerDto
+﻿@model CustomerDto
 @using DeliverySystem.Application.DTOs
 @{
     ViewData["Title"] = "تفاصيل العميل";
@@ -56,13 +56,13 @@
             </div>
             <div class="col-6">
                 <div class="stat-card text-center py-3">
-                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalPaid) <small style="font-size:11px">ر.س</small></div>
+                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalPaid) <small style="font-size:11px">د.ع</small></div>
                     <div class="stat-label">المدفوع</div>
                 </div>
             </div>
             <div class="col-12">
                 <div class="stat-card danger text-center py-3">
-                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalDebt) <small style="font-size:13px">ر.س</small></div>
+                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalDebt) <small style="font-size:13px">د.ع</small></div>
                     <div class="stat-label">الديون المتبقية</div>
                 </div>
             </div>

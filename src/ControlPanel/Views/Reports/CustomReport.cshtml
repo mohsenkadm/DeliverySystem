@@ -70,9 +70,9 @@
 @if (invoices != null)
 {
     <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalAmount).ToString("N0")</div><div class="stat-label">إجمالي الفواتير (ر.س)</div></div></div></div>
-        <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalPaid).ToString("N0")</div><div class="stat-label">المدفوع (ر.س)</div></div></div></div>
-        <div class="col-md-4"><div class="stat-card card text-white bg-danger" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalDebt).ToString("N0")</div><div class="stat-label">المتبقي (ر.س)</div></div></div></div>
+        <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.TotalAmount).ToString("N0"))</div><div class="stat-label">إجمالي الفواتير (د.ع)</div></div></div></div>
+        <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.TotalPaid).ToString("N0"))</div><div class="stat-label">المدفوع (د.ع)</div></div></div></div>
+        <div class="col-md-4"><div class="stat-card card text-white bg-danger" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@(((decimal)ViewBag.TotalDebt).ToString("N0"))</div><div class="stat-label">المتبقي (د.ع)</div></div></div></div>
     </div>
 
     <div class="card" data-aos="fade-up">

@@ -1,8 +1,9 @@
 @model CreateBranchDto
 @using DeliverySystem.Application.DTOs
+@using DeliverySystem.ControlPanel.Controllers
 @{
     ViewData["Title"] = "إضافة فرع جديد";
-    var allRegions = new List<string> { "الكاظمية", "المنصور", "الكرادة", "الرصافة" , "أخرى" };
+    var allRegions = EmployeesController.AllRegions;
 }
 
 <div class="page-header" data-aos="fade-down">

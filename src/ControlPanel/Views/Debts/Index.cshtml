@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "تسوية الديون";
     var debts = ViewBag.Debts as IEnumerable<dynamic>;
 }
@@ -13,7 +13,7 @@
     <div class="col-md-4" data-aos="fade-up">
         <div class="stat-card danger">
             <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
-            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalDebt ?? 0) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalDebt ?? 0) <small style="font-size:14px">د.ع</small></div>
             <div class="stat-label">إجمالي الديون</div>
         </div>
     </div>
@@ -85,9 +85,9 @@
                                 <td>@(d.RepresentativeName ?? "-")</td>
                                 <td><code class="text-primary">@d.InvoiceNumber</code></td>
                                 <td><small>@((DateTime)d.OrderDate).ToString("yyyy/MM/dd")</small></td>
-                                <td>@String.Format("{0:N2}", d.TotalAmount) ر.س</td>
-                                <td class="text-success">@String.Format("{0:N2}", d.PaidAmount) ر.س</td>
-                                <td class="text-danger fw-bold">@String.Format("{0:N2}", d.RemainingAmount) ر.س</td>
+                                <td>@String.Format("{0:N2}", d.TotalAmount) د.ع</td>
+                                <td class="text-success">@String.Format("{0:N2}", d.PaidAmount) د.ع</td>
+                                <td class="text-danger fw-bold">@String.Format("{0:N2}", d.RemainingAmount) د.ع</td>
                                 <td class="no-print">
                                     <div class="d-flex gap-1">
                                         <form asp-controller="Invoices" asp-action="PayFull" asp-route-id="@d.InvoiceId" method="post"

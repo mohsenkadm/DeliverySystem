@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "كشف حساب عميل";
 }
 
@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="fw-bold fs-3 @(customer.TotalDebt > 0 ? "text-danger" : "text-success")">
-                        @String.Format("{0:N2}", customer.TotalDebt) ر.س
+                        @String.Format("{0:N2}", customer.TotalDebt) د.ع
                     </div>
                     <small class="text-muted">رصيد الديون الحالي</small>
                 </div>
@@ -81,13 +81,13 @@
             <div class="stat-card"><div class="stat-icon"><i class="fas fa-file-invoice"></i></div><div class="stat-value">@(customer.TotalInvoices)</div><div class="stat-label">إجمالي الفواتير</div></div>
         </div>
         <div class="col-md-3" data-aos="fade-up" data-aos-delay="60">
-            <div class="stat-card accent"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalAmount ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">إجمالي المبيعات</div></div>
+            <div class="stat-card accent"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalAmount ?? 0) <small style="font-size:12px">د.ع</small></div><div class="stat-label">إجمالي المبيعات</div></div>
         </div>
         <div class="col-md-3" data-aos="fade-up" data-aos-delay="120">
-            <div class="stat-card success"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalPaid ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">المدفوع</div></div>
+            <div class="stat-card success"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalPaid ?? 0) <small style="font-size:12px">د.ع</small></div><div class="stat-label">المدفوع</div></div>
         </div>
         <div class="col-md-3" data-aos="fade-up" data-aos-delay="180">
-            <div class="stat-card danger"><div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalRemaining ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">المتبقي</div></div>
+            <div class="stat-card danger"><div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalRemaining ?? 0) <small style="font-size:12px">د.ع</small></div><div class="stat-label">المتبقي</div></div>
         </div>
     </div>
 
@@ -117,10 +117,10 @@
                                     <td><code>@inv.InvoiceNumber</code></td>
                                     <td><small>@((DateTime)inv.OrderDate).ToString("yyyy/MM/dd")</small></td>
                                     <td>@(inv.DriverName ?? "-")</td>
-                                    <td>@String.Format("{0:N2}", inv.TotalAmount) ر.س</td>
-                                    <td class="text-success">@String.Format("{0:N2}", inv.PaidAmount) ر.س</td>
+                                    <td>@String.Format("{0:N2}", inv.TotalAmount) د.ع</td>
+                                    <td class="text-success">@String.Format("{0:N2}", inv.PaidAmount) د.ع</td>
                                     <td class="@((decimal)(inv.TotalAmount - inv.PaidAmount) > 0 ? "text-danger fw-bold" : "text-success")">
-                                        @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) ر.س
+                                        @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) د.ع
                                     </td>
                                     <td><span class="badge-status badge-@(inv.Status.ToString().ToLower())">@inv.StatusText</span></td>
                                 </tr>
@@ -130,9 +130,9 @@
                     <tfoot>
                         <tr class="table-primary fw-bold">
                             <td colspan="3" class="text-end">الإجمالي</td>
-                            <td>@String.Format("{0:N2}", ViewBag.TotalAmount ?? 0) ر.س</td>
-                            <td class="text-success">@String.Format("{0:N2}", ViewBag.TotalPaid ?? 0) ر.س</td>
-                            <td class="text-danger">@String.Format("{0:N2}", ViewBag.TotalRemaining ?? 0) ر.س</td>
+                            <td>@String.Format("{0:N2}", ViewBag.TotalAmount ?? 0) د.ع</td>
+                            <td class="text-success">@String.Format("{0:N2}", ViewBag.TotalPaid ?? 0) د.ع</td>
+                            <td class="text-danger">@String.Format("{0:N2}", ViewBag.TotalRemaining ?? 0) د.ع</td>
                             <td></td>
                         </tr>
                     </tfoot>

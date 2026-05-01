@@ -1,5 +1,6 @@
 using DeliverySystem.Application.DTOs;
 using DeliverySystem.Application.Features.Employees.Commands;
+using DeliverySystem.Application.Features.ActivityLogs.Commands;
 using ClosedXML.Excel;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class EmployeesController(IMediator mediator) : Controller
 
     public static readonly List<string> AllRegions =
     [
-         "الكاظمية", "المنصور", "الكرادة", "الرصافة" , "أخرى"
+         "بغداد", "الكاظمية", "المنصور", "الكرادة", "الرصافة", "الكرخ", "الرشيد", "الأعظمية", "الشعب", "الجسر", "المدائن", "أبو غريب", "أخرى"
     ];
 
     public async Task<IActionResult> Index(string? search, string? employeeType)
@@ -51,6 +52,7 @@ public class EmployeesController(IMediator mediator) : Controller
             return View(dto);
         }
         await mediator.Send(new CreateEmployeeCommand(dto));
+        await mediator.Send(new LogActivityCommand("إضافة موظف", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم إضافة موظف جديد: {dto.FullName}"));
         TempData["Success"] = "تم إضافة الموظف بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -90,6 +92,7 @@ public class EmployeesController(IMediator mediator) : Controller
             ViewBag.AllRoles = AllRoles; ViewBag.AllRegions = AllRegions; return View(dto);
         }
         await mediator.Send(new UpdateEmployeeCommand(id, dto));
+        await mediator.Send(new LogActivityCommand("تعديل موظف", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم تعديل بيانات الموظف رقم {id}"));
         TempData["Success"] = "تم تعديل بيانات الموظف";
         return RedirectToAction(nameof(Index));
     }
@@ -106,6 +109,7 @@ public class EmployeesController(IMediator mediator) : Controller
     public async Task<IActionResult> Delete(int id)
     {
         await mediator.Send(new DeleteEmployeeCommand(id));
+        await mediator.Send(new LogActivityCommand("حذف موظف", HttpContext.Session.GetString("AdminFullName") ?? "مجهول", "إدارة", $"تم حذف الموظف رقم {id}"));
         TempData["Success"] = "تم حذف الموظف";
         return RedirectToAction(nameof(Index));
     }

@@ -1,4 +1,4 @@
-@model EmployeeDto
+﻿@model EmployeeDto
 @using DeliverySystem.Application.DTOs
 @{
     ViewData["Title"] = "تفاصيل الموظف";
@@ -73,7 +73,7 @@
             </div>
             <div class="col-6">
                 <div class="stat-card danger text-center py-3">
-                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalDebt) <small style="font-size:11px">ر.س</small></div>
+                    <div class="stat-value">@String.Format("{0:N0}", Model.TotalDebt) <small style="font-size:11px">د.ع</small></div>
                     <div class="stat-label">ديون</div>
                 </div>
             </div>
