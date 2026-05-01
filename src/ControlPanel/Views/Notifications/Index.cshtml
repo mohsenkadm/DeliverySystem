@@ -1,0 +1,127 @@
+@using DeliverySystem.Application.Features.Notifications.Commands
+@using DeliverySystem.Domain.Enums
+@model List<NotificationDto>
+@{
+    ViewData["Title"] = "إدارة الإشعارات";
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-bell me-2 text-warning"></i>الإشعارات</h4>
+        <p class="text-muted mb-0">إرسال وعرض إشعارات النظام</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Send Form -->
+    <div class="col-lg-4" data-aos="fade-up">
+        <div class="card">
+            <div class="card-header bg-primary text-white"><i class="fas fa-paper-plane me-2"></i>إرسال إشعار جديد</div>
+            <div class="card-body">
+                <form asp-action="Send" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">العنوان <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" required maxlength="200" placeholder="عنوان الإشعار..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">المحتوى <span class="text-danger">*</span></label>
+                        <textarea name="body" class="form-control" rows="4" required placeholder="نص الإشعار..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">الجهة المستهدفة</label>
+                        <select name="target" class="form-select" id="targetSelect" onchange="toggleUser()">
+                            <option value="0">المسؤولون</option>
+                            <option value="1">السائقون</option>
+                            <option value="2">المندوبون</option>
+                            <option value="3">العملاء</option>
+                            <option value="4">الموظفون</option>
+                            <option value="5">المشرفون</option>
+                            <option value="6">مدراء المبيعات</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="userIdField" style="display:none">
+                        <label class="form-label">معرف المستخدم (اختياري — اتركه فارغاً للجميع)</label>
+                        <input type="number" name="targetUserId" class="form-control" placeholder="ID المستخدم" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-paper-plane me-2"></i>إرسال الإشعار
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Templates -->
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-magic me-2"></i>قوالب سريعة</div>
+            <div class="card-body d-grid gap-2">
+                <button class="btn btn-outline-warning btn-sm" onclick="fillTemplate('تذكير بالدين','لديك رصيد مستحق — يرجى التواصل مع المبيعات',3)">
+                    <i class="fas fa-hand-holding-usd me-1"></i>تذكير بالدين
+                </button>
+                <button class="btn btn-outline-info btn-sm" onclick="fillTemplate('عروض وخصومات جديدة','تفقد عروضنا الحصرية الجديدة المتاحة الآن',3)">
+                    <i class="fas fa-tags me-1"></i>إشعار العروض
+                </button>
+                <button class="btn btn-outline-success btn-sm" onclick="fillTemplate('تحديث النظام','تم تحديث النظام — يرجى تسجيل الدخول من جديد',4)">
+                    <i class="fas fa-sync me-1"></i>تحديث النظام
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list me-2"></i>سجل الإشعارات (@Model.Count)</span>
+                <small class="text-muted">آخر 50 إشعار</small>
+            </div>
+            <div class="card-body p-0" style="max-height:600px;overflow-y:auto">
+                @foreach (var n in Model)
+                {
+                    <div class="d-flex gap-3 p-3 border-bottom @(n.IsRead?"opacity-75":"")" id="notif-@n.Id">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:40px;height:40px;border-radius:50%;font-size:1.1rem">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>@n.Title</strong>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <span class="badge bg-info">@(n.Target switch { NotificationTarget.Admin=>"مسؤول",NotificationTarget.Driver=>"سائق",NotificationTarget.Representative=>"مندوب",NotificationTarget.Customer=>"عميل",NotificationTarget.Employee=>"موظف",NotificationTarget.Supervisor=>"مشرف",NotificationTarget.SalesManager=>"مدير مبيعات",_=>"" })</span>
+                                    @if (!n.IsRead)
+                                    {
+                                        <button class="btn btn-xs btn-outline-secondary" style="font-size:.7rem;padding:2px 6px"
+                                                onclick="markRead(@n.Id)">قُرئ</button>
+                                    }
+                                </div>
+                            </div>
+                            <p class="text-muted mb-1 small">@n.Body</p>
+                            <small class="text-muted"><i class="fas fa-clock me-1"></i>@n.CreatedAt.ToString("yyyy/MM/dd HH:mm")</small>
+                        </div>
+                    </div>
+                }
+                @if (!Model.Any()) { <div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-2x mb-2"></i><p>لا توجد إشعارات</p></div> }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function toggleUser() {
+    const t = parseInt(document.getElementById('targetSelect').value);
+    document.getElementById('userIdField').style.display = (t >= 0) ? 'block' : 'none';
+}
+
+function fillTemplate(title, body, target) {
+    document.querySelector('[name="title"]').value = title;
+    document.querySelector('[name="body"]').value = body;
+    document.getElementById('targetSelect').value = target;
+}
+
+async function markRead(id) {
+    await fetch(`/Notifications/MarkRead/${id}`, { method:'POST', headers:{'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]')?.value ?? ''} });
+    document.getElementById(`notif-${id}`).classList.add('opacity-75');
+}
+</script>
+}

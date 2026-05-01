@@ -1,0 +1,89 @@
+@model IEnumerable<InventoryDto>
+@{
+    ViewData["Title"] = "إدارة المخزون";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-cubes"></i> إدارة المخزون</h1>
+    <a asp-action="Create" class="btn btn-primary btn-sm no-print"><i class="fas fa-plus me-1"></i>إضافة مخزون</a>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">المنتج</label>
+                <select name="productId" class="form-select">
+                    <option value="">-- جميع المنتجات --</option>
+                    @if (ViewBag.Products != null) { foreach (var p in ViewBag.Products) { <option value="@p.Id">@p.Name</option> } }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">المستودع</label>
+                <select name="warehouseId" class="form-select">
+                    <option value="">-- جميع المستودعات --</option>
+                    @if (ViewBag.Warehouses != null) { foreach (var w in ViewBag.Warehouses) { <option value="@w.Id">@w.Name</option> } }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header">
+        <i class="fas fa-cubes"></i> سجلات المخزون
+        <span class="badge bg-primary ms-2">@Model.Count()</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>المنتج</th>
+                        <th>المستودع</th>
+                        <th>الكمية</th>
+                        <th>آخر تحديث</th>
+                        <th class="no-print">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int i = 1;}
+                    @foreach (var inv in Model)
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td>@inv.ProductName</td>
+                            <td><i class="fas fa-warehouse me-1 text-muted"></i>@inv.WarehouseName</td>
+                            <td>
+                                <span class="fw-bold @(inv.Quantity < 10 ? "text-danger" : inv.Quantity < 50 ? "text-warning" : "text-success")">
+                                    @inv.Quantity
+                                </span>
+                                @if (inv.Quantity < 10)
+                                {
+                                    <span class="badge bg-danger ms-1">منخفض</span>
+                                }
+                            </td>
+                            <td><small class="text-muted">@inv.Date.ToString("yyyy/MM/dd")</small></td>
+                            <td class="no-print">
+                                <form asp-action="Delete" asp-route-id="@inv.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('حذف هذا السجل؟')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-action"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-5"><i class="fas fa-cubes fa-3x mb-3 d-block opacity-25"></i>لا توجد بيانات مخزون</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

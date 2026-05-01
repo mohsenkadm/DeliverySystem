@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/API/">
+    <Project Path="src/API/DeliverySystem.API.csproj" />
+  </Folder>
+  <Folder Name="/src/Application/">
+    <Project Path="src/Application/DeliverySystem.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/ControlPanel/">
+    <Project Path="src/ControlPanel/DeliverySystem.ControlPanel.csproj" />
+  </Folder>
+  <Folder Name="/src/Domain/">
+    <Project Path="src/Domain/DeliverySystem.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/DeliverySystem.Infrastructure.csproj" />
+  </Folder>
+</Solution>

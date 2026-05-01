@@ -1,0 +1,72 @@
+@model IEnumerable<ActivityLogDto>
+@{
+    ViewData["Title"] = "سجل النشاطات";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-history"></i> سجل النشاطات</h1>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm no-print"><i class="fas fa-print me-1"></i>طباعة</button>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="بحث في النشاطات..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="from" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="to" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header">
+        <i class="fas fa-history"></i> سجل النشاطات
+        <span class="badge bg-primary ms-2">@Model.Count()</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>الإجراء</th>
+                        <th>المنفذ</th>
+                        <th>الدور</th>
+                        <th>التاريخ والوقت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td>
+                                <i class="fas fa-circle me-2" style="font-size:8px;color:var(--primary-color)"></i>
+                                @log.Action
+                            </td>
+                            <td>@log.PerformedBy</td>
+                            <td><span class="badge bg-primary">@log.UserRole</span></td>
+                            <td><small class="text-muted">@log.Timestamp.ToString("yyyy/MM/dd HH:mm:ss")</small></td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-5"><i class="fas fa-history fa-3x mb-3 d-block opacity-25"></i>لا توجد نشاطات</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

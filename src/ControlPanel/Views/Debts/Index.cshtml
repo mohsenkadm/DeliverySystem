@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "تسوية الديون";
+    var debts = ViewBag.Debts as IEnumerable<dynamic>;
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-hand-holding-usd"></i> تسوية الديون</h1>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm no-print"><i class="fas fa-print me-1"></i>طباعة</button>
+</div>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4" data-aos="fade-up">
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalDebt ?? 0) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">إجمالي الديون</div>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="80">
+        <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">@(ViewBag.CustomerWithDebt ?? 0)</div>
+            <div class="stat-label">عملاء لديهم ديون</div>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
+        <div class="stat-card accent">
+            <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+            <div class="stat-value">@(ViewBag.InvoicesWithDebt ?? 0)</div>
+            <div class="stat-label">فاتورة غير مسددة</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">العميل</label>
+                <select name="customerId" class="form-select">
+                    <option value="">-- جميع العملاء --</option>
+                    @if (ViewBag.Customers != null)
+                    {
+                        foreach (var c in ViewBag.Customers)
+                        {
+                            <option value="@c.Id">@c.FullName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Debts Table -->
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-list"></i> سجل الديون</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>العميل</th>
+                        <th>المندوب</th>
+                        <th>رقم الفاتورة</th>
+                        <th>تاريخ الفاتورة</th>
+                        <th>إجمالي الفاتورة</th>
+                        <th>المدفوع</th>
+                        <th>المتبقي</th>
+                        <th class="no-print">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (debts != null)
+                    {
+                        foreach (var d in debts)
+                        {
+                            <tr>
+                                <td>@d.CustomerName</td>
+                                <td>@(d.RepresentativeName ?? "-")</td>
+                                <td><code class="text-primary">@d.InvoiceNumber</code></td>
+                                <td><small>@((DateTime)d.OrderDate).ToString("yyyy/MM/dd")</small></td>
+                                <td>@String.Format("{0:N2}", d.TotalAmount) ر.س</td>
+                                <td class="text-success">@String.Format("{0:N2}", d.PaidAmount) ر.س</td>
+                                <td class="text-danger fw-bold">@String.Format("{0:N2}", d.RemainingAmount) ر.س</td>
+                                <td class="no-print">
+                                    <div class="d-flex gap-1">
+                                        <form asp-controller="Invoices" asp-action="PayFull" asp-route-id="@d.InvoiceId" method="post"
+                                              onsubmit="return confirm('تسجيل الدفع الكامل؟')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success btn-action" title="دفع كامل"><i class="fas fa-check-double"></i></button>
+                                        </form>
+                                        <a asp-controller="Invoices" asp-action="Details" asp-route-id="@d.InvoiceId"
+                                           class="btn btn-sm btn-outline-primary btn-action" title="تفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

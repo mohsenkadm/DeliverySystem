@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "أداء السائقين";
+    var drivers = ViewBag.Drivers as System.Collections.IEnumerable;
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-truck me-2 text-warning"></i>أداء السائقين</h4>
+        <p class="text-muted mb-0">مقارنة أداء السائقين خلال الفترة المحددة</p>
+    </div>
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i>طباعة</button>
+        <button onclick="exportPDF()" class="btn btn-outline-danger btn-sm"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+    </div>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto"><label class="form-label small mb-1">من</label><input type="date" name="from" value="@ViewBag.From" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><label class="form-label small mb-1">إلى</label><input type="date" name="to" value="@ViewBag.To" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search me-1"></i>تصفية</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6" data-aos="fade-up">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>عدد الطلبات والتوصيلات</div>
+            <div class="card-body"><div style="height:300px"><canvas id="ordersChart"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-dollar-sign me-2"></i>المبالغ المحصّلة (ر.س)</div>
+            <div class="card-body"><div style="height:300px"><canvas id="collectChart"></canvas></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-table me-2"></i>جدول الأداء</div>
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>السائق</th><th class="text-center">إجمالي الطلبات</th><th class="text-center">الموصّلة</th><th class="text-center">نسبة التوصيل</th><th class="text-end">المبلغ المحصّل</th></tr>
+            </thead>
+            <tbody>
+                @{ int row = 1; }
+                @foreach (dynamic d in drivers ?? Enumerable.Empty<object>())
+                {
+                    var pct = d.TotalOrders > 0 ? (int)Math.Round((double)d.Delivered / d.TotalOrders * 100) : 0;
+                    <tr>
+                        <td>@row</td>
+                        <td><i class="fas fa-user-circle text-warning me-1"></i>@d.Name</td>
+                        <td class="text-center">@d.TotalOrders</td>
+                        <td class="text-center">@d.Delivered</td>
+                        <td class="text-center">
+                            <div class="progress" style="height:8px">
+                                <div class="progress-bar @(pct>=80?"bg-success":pct>=50?"bg-warning":"bg-danger")" style="width:@pct%"></div>
+                            </div>
+                            <small class="text-muted">@pct%</small>
+                        </td>
+                        <td class="text-end fw-bold text-success">@d.TotalCollected.ToString("N2") ر.س</td>
+                    </tr>
+                    row++;
+                }
+                @if (row == 1) { <tr><td colspan="6" class="text-center py-4 text-muted">لا توجد بيانات</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const driverLabels    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DriverLabels    ?? new List<string>()));
+const driverOrders    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DriverOrders    ?? new List<int>()));
+const driverDelivered = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DriverDelivered ?? new List<int>()));
+const driverCollected = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DriverCollected ?? new List<decimal>()));
+
+new Chart(document.getElementById('ordersChart'), {
+    type: 'bar', data: { labels: driverLabels, datasets: [
+        { label: 'إجمالي الطلبات', data: driverOrders, backgroundColor: 'rgba(79,70,229,.7)', borderRadius: 4 },
+        { label: 'الموصّلة', data: driverDelivered, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 4 }
+    ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
+});
+new Chart(document.getElementById('collectChart'), {
+    type: 'bar', data: { labels: driverLabels, datasets: [{ label: 'المحصّل (ر.س)', data: driverCollected, backgroundColor: 'rgba(245,158,11,.7)', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
+});
+
+function exportPDF() {
+    html2pdf().set({ margin:10, filename:'driver-performance.pdf', html2canvas:{scale:2}, jsPDF:{orientation:'landscape',format:'a4'} })
+              .from(document.querySelector('.page-content')).save();
+}
+</script>
+}

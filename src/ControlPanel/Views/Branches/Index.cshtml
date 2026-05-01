@@ -1,0 +1,90 @@
+@model IEnumerable<BranchDto>
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "إدارة الفروع";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-code-branch"></i> إدارة الفروع</h1>
+    <div class="d-flex gap-2 flex-wrap no-print">
+        <a asp-action="ExportExcel" class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>تصدير Excel</a>
+        <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>إضافة فرع</a>
+    </div>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="اسم الفرع أو المنطقة..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="isActive" class="form-select">
+                    <option value="">-- جميع الحالات --</option>
+                    <option value="true"  selected="@(ViewBag.IsActive!=null&&(bool)ViewBag.IsActive==true?"selected":null)">نشط</option>
+                    <option value="false" selected="@(ViewBag.IsActive!=null&&(bool)ViewBag.IsActive==false?"selected":null)">غير نشط</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>تطبيق</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    @foreach (var b in Model)
+    {
+        <div class="col-xl-3 col-md-4 col-sm-6" data-aos="fade-up">
+            <div class="card h-100 @(b.IsActive?"":"border-secondary opacity-75")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0"><i class="fas fa-code-branch text-primary me-2"></i>@b.Name</h5>
+                        @if (b.IsActive)
+                        { <span class="badge bg-success">نشط</span> }
+                        else
+                        { <span class="badge bg-secondary">غير نشط</span> }
+                    </div>
+                    @if (!string.IsNullOrEmpty(b.Region))
+                    { <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-1"></i>@b.Region</p> }
+                    @if (!string.IsNullOrEmpty(b.Phone))
+                    { <p class="text-muted small mb-2"><i class="fas fa-phone me-1"></i>@b.Phone</p> }
+                    <div class="row g-2 my-2">
+                        <div class="col-4 text-center">
+                            <div class="fw-bold text-primary">@b.CustomerCount</div>
+                            <small class="text-muted">عملاء</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="fw-bold text-success">@b.EmployeeCount</div>
+                            <small class="text-muted">موظفون</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="fw-bold text-warning">@b.WarehouseCount</div>
+                            <small class="text-muted">مستودعات</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <div class="d-flex gap-1">
+                        <a asp-action="Details" asp-route-id="@b.Id" class="btn btn-sm btn-outline-info flex-fill"><i class="fas fa-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@b.Id" class="btn btn-sm btn-outline-warning flex-fill"><i class="fas fa-edit"></i></a>
+                        <form asp-action="Delete" asp-route-id="@b.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('هل أنت متأكد من حذف الفرع @b.Name؟')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center text-muted py-5">
+            <i class="fas fa-code-branch fa-3x mb-3 d-block opacity-25"></i>لا توجد فروع
+        </div>
+    }
+</div>

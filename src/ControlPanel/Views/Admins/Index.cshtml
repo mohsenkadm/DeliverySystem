@@ -1,0 +1,107 @@
+@model IEnumerable<AdminDto>
+@{
+    ViewData["Title"] = "إدارة المسؤولين";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-user-shield"></i> إدارة المسؤولين</h1>
+    <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>إضافة مسؤول</a>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header">
+        <i class="fas fa-users-cog"></i> قائمة المسؤولين
+        <span class="badge bg-primary ms-2">@Model.Count()</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الاسم الكامل</th>
+                        <th>اسم المستخدم</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>الصلاحيات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var admin in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">@admin.Id</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-circle" style="width:36px;height:36px;font-size:14px;background:linear-gradient(135deg,#4f46e5,#06b6d4)">
+                                        @admin.FullName.Substring(0, 1)
+                                    </div>
+                                    <span class="fw-semibold">@admin.FullName</span>
+                                </div>
+                            </td>
+                            <td><code>@admin.Username</code></td>
+                            <td>
+                                @if (admin.IsActive)
+                                {
+                                    <span class="badge-status badge-accepted">
+                                        <i class="fas fa-circle me-1" style="font-size:8px"></i>نشط
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-rejected">معطل</span>
+                                }
+                            </td>
+                            <td class="text-muted">@admin.CreatedAt.ToString("yyyy/MM/dd")</td>
+                            <td>
+                                <span class="badge bg-primary">@admin.Permissions.Count صفحة</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@admin.Id"
+                                       class="btn btn-outline-primary btn-sm btn-action" title="عرض">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Permissions" asp-route-id="@admin.Id"
+                                       class="btn btn-outline-warning btn-sm btn-action" title="الصلاحيات">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                    <form asp-action="ToggleActive" asp-route-id="@admin.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-action @(admin.IsActive ? "btn-outline-secondary" : "btn-outline-success")"
+                                                title="@(admin.IsActive ? "تعطيل" : "تفعيل")">
+                                            <i class="fas @(admin.IsActive ? "fa-pause" : "fa-play")"></i>
+                                        </button>
+                                    </form>
+                                    @{
+                                        var currentAdminId = Context.Session.GetString("AdminId");
+                                    }
+                                    @if (currentAdminId != admin.Id.ToString())
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@admin.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('حذف المسؤول @admin.FullName؟')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm btn-action" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-user-shield fa-3x mb-3 d-block opacity-25"></i>
+                                لا يوجد مسؤولون
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

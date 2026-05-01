@@ -1,0 +1,86 @@
+@model BranchDto
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "تفاصيل الفرع";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-code-branch"></i> @Model.Name</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-sm no-print"><i class="fas fa-edit me-1"></i>تعديل</a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4" data-aos="fade-up">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <div class="avatar-circle mx-auto mb-3" style="width:80px;height:80px;font-size:32px;">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h4 class="fw-bold">@Model.Name</h4>
+                @if (!string.IsNullOrEmpty(Model.Region))
+                { <p class="text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i>@Model.Region</p> }
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                { <p class="text-muted mb-1"><i class="fas fa-phone me-1"></i>@Model.Phone</p> }
+                @if (Model.IsActive)
+                { <span class="badge bg-success fs-6 mt-2"><i class="fas fa-check-circle me-1"></i>نشط</span> }
+                else
+                { <span class="badge bg-secondary fs-6 mt-2"><i class="fas fa-times-circle me-1"></i>غير نشط</span> }
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-4">
+                <div class="stat-card success text-center py-3">
+                    <div class="stat-value">@Model.CustomerCount</div>
+                    <div class="stat-label">العملاء</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card text-center py-3">
+                    <div class="stat-value">@Model.EmployeeCount</div>
+                    <div class="stat-label">الموظفون</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card danger text-center py-3">
+                    <div class="stat-value">@Model.WarehouseCount</div>
+                    <div class="stat-label">المستودعات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8" data-aos="fade-up">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-info-circle me-2"></i>معلومات الفرع</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">اسم الفرع</label>
+                        <div class="fw-bold">@Model.Name</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">المنطقة</label>
+                        <div class="fw-bold">@(Model.Region ?? "—")</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">الهاتف</label>
+                        <div class="fw-bold">@(Model.Phone ?? "—")</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">تاريخ الإنشاء</label>
+                        <div class="fw-bold">@Model.CreatedAt.ToString("yyyy/MM/dd")</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Address))
+                    {
+                        <div class="col-12">
+                            <label class="text-muted small">العنوان</label>
+                            <div class="fw-bold"><i class="fas fa-map-marker-alt text-danger me-2"></i>@Model.Address</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

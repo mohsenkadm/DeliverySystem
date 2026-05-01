@@ -1,0 +1,176 @@
+@model CreateInvoiceDto
+@{
+    ViewData["Title"] = "إنشاء فاتورة جديدة";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-file-invoice-dollar"></i> إنشاء فاتورة جديدة</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-file-invoice"></i> بيانات الفاتورة</div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="invoiceForm">
+            @Html.AntiForgeryToken()
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">العميل <span class="text-danger">*</span></label>
+                    <select name="CustomerId" class="form-select" required>
+                        <option value="">-- اختر العميل --</option>
+                        @if (ViewBag.Customers != null)
+                        {
+                            foreach (var c in ViewBag.Customers)
+                            {
+                                <option value="@c.Id">@c.FullName (@c.Phone)</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">السائق (اختياري)</label>
+                    <select name="DriverId" class="form-select">
+                        <option value="">-- اختر السائق --</option>
+                        @if (ViewBag.Drivers != null)
+                        {
+                            foreach (var d in ViewBag.Drivers)
+                            {
+                                <option value="@d.Id">@d.FullName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-box"></i> المنتجات</span>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addRow()">
+                        <i class="fas fa-plus me-1"></i>إضافة منتج
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th style="width:100px">الكمية</th>
+                                    <th style="width:130px">سعر الوحدة</th>
+                                    <th style="width:120px">الخصم</th>
+                                    <th style="width:130px">الإجمالي</th>
+                                    <th style="width:50px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsBody">
+                                <tr id="row-0">
+                                    <td>
+                                        <select name="Details[0].ProductId" class="form-select form-select-sm" required>
+                                            <option value="">-- المنتج --</option>
+                                            @if (ViewBag.Products != null)
+                                            {
+                                                foreach (var p in ViewBag.Products)
+                                                {
+                                                    <option value="@p.Id" data-price="@p.RetailPrice">@p.Name (@String.Format("{0:N2}", p.RetailPrice) ر.س)</option>
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input name="Details[0].Quantity" type="number" min="1" value="1" class="form-control form-control-sm qty-input" onchange="calcRow(0)" required /></td>
+                                    <td><input name="Details[0].UnitPrice" type="number" step="0.01" min="0" class="form-control form-control-sm price-input" onchange="calcRow(0)" required /></td>
+                                    <td><input name="Details[0].Discount" type="number" step="0.01" min="0" value="0" class="form-control form-control-sm disc-input" onchange="calcRow(0)" /></td>
+                                    <td><span class="row-total fw-bold text-primary">0.00</span></td>
+                                    <td><button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="removeRow(0)"><i class="fas fa-times"></i></button></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-end fw-bold">الإجمالي الكلي</td>
+                                    <td colspan="2"><strong id="grandTotal" class="text-primary fs-5">0.00 ر.س</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>إنشاء الفاتورة</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let rowCount = 1;
+@{
+    var productsJson = ViewBag.Products != null
+        ? System.Text.Json.JsonSerializer.Serialize(
+            ((IEnumerable<DeliverySystem.Application.DTOs.ProductDto>)ViewBag.Products)
+                .Select(p => new { id = p.Id, name = p.Name, price = p.RetailPrice })
+                .ToList())
+        : "[]";
+}
+const products = @Html.Raw(productsJson);
+
+function addRow() {
+    const idx = rowCount++;
+    const options = products.map(p =>
+        `<option value="${p.id}" data-price="${p.price}">${p.name} (${p.price.toFixed(2)} ر.س)</option>`
+    ).join('');
+    const tr = document.createElement('tr');
+    tr.id = `row-${idx}`;
+    tr.innerHTML = `
+        <td><select name="Details[${idx}].ProductId" class="form-select form-select-sm" onchange="setPrice(${idx})" required>
+            <option value="">-- المنتج --</option>${options}
+        </select></td>
+        <td><input name="Details[${idx}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm qty-input" onchange="calcRow(${idx})" required /></td>
+        <td><input name="Details[${idx}].UnitPrice" type="number" step="0.01" min="0" class="form-control form-control-sm price-input" onchange="calcRow(${idx})" required /></td>
+        <td><input name="Details[${idx}].Discount" type="number" step="0.01" min="0" value="0" class="form-control form-control-sm disc-input" onchange="calcRow(${idx})" /></td>
+        <td><span class="row-total fw-bold text-primary">0.00</span></td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="removeRow(${idx})"><i class="fas fa-times"></i></button></td>`;
+    document.getElementById('productsBody').appendChild(tr);
+}
+
+function setPrice(idx) {
+    const row = document.getElementById(`row-${idx}`);
+    if (!row) return;
+    const sel = row.querySelector('select');
+    const opt = sel.selectedOptions[0];
+    const price = opt ? (parseFloat(opt.dataset.price) || 0) : 0;
+    row.querySelector('.price-input').value = price.toFixed(2);
+    calcRow(idx);
+}
+
+function calcRow(idx) {
+    const row = document.getElementById(`row-${idx}`);
+    if (!row) return;
+    const qty   = parseFloat(row.querySelector('.qty-input').value)   || 0;
+    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+    const disc  = parseFloat(row.querySelector('.disc-input').value)  || 0;
+    const total = Math.max(0, (qty * price) - disc);
+    row.querySelector('.row-total').textContent = total.toFixed(2);
+    updateGrandTotal();
+}
+
+function removeRow(idx) {
+    const rows = document.querySelectorAll('#productsBody tr');
+    if (rows.length <= 1) return;
+    const row = document.getElementById(`row-${idx}`);
+    if (row) row.remove();
+    updateGrandTotal();
+}
+
+function updateGrandTotal() {
+    let total = 0;
+    document.querySelectorAll('.row-total').forEach(el => { total += parseFloat(el.textContent) || 0; });
+    document.getElementById('grandTotal').textContent = total.toFixed(2) + ' ر.س';
+}
+
+// ربط حدث تغيير المنتج للسطر الأول
+document.querySelector('#row-0 select').addEventListener('change', () => setPrice(0));
+</script>
+}

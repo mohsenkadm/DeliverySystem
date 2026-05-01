@@ -1,0 +1,41 @@
+@{ViewData["Title"] = "إضافة مخزون";}
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-cubes"></i> إضافة مخزون</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card" data-aos="fade-up">
+            <div class="card-header"><i class="fas fa-cubes"></i> بيانات المخزون</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">المنتج <span class="text-danger">*</span></label>
+                            <select name="ProductId" class="form-select" required>
+                                <option value="">-- اختر المنتج --</option>
+                                @if (ViewBag.Products != null) { foreach (var p in ViewBag.Products) { <option value="@p.Id">@p.Name</option> } }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المستودع <span class="text-danger">*</span></label>
+                            <select name="WarehouseId" class="form-select" required>
+                                <option value="">-- اختر المستودع --</option>
+                                @if (ViewBag.Warehouses != null) { foreach (var w in ViewBag.Warehouses) { <option value="@w.Id">@w.Name</option> } }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الكمية <span class="text-danger">*</span></label>
+                            <input type="number" name="Quantity" class="form-control" min="1" placeholder="0" required />
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>حفظ</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary ms-2">إلغاء</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

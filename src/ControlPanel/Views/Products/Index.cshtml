@@ -1,0 +1,125 @@
+@model IEnumerable<ProductDto>
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "إدارة المنتجات";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-box"></i> إدارة المنتجات</h1>
+    <div class="d-flex gap-2 no-print">
+        <a asp-action="ExportExcel" class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>تصدير Excel</a>
+        <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>إضافة منتج</a>
+    </div>
+</div>
+
+<!-- فلاتر -->
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small text-muted">بحث</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="اسم المنتج أو الكود..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">التصنيف</label>
+                <select name="categoryId" class="form-select">
+                    <option value="">-- جميع التصنيفات --</option>
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var c in ViewBag.Categories)
+                        { <option value="@c.Id" selected="@(ViewBag.CategoryId != null && (int)ViewBag.CategoryId == c.Id ? "selected" : null)">@c.Name</option> }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>تطبيق</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- بطاقات المنتجات -->
+<div class="row g-3">
+    @foreach (var p in Model)
+    {
+        <div class="col-xl-3 col-md-4 col-sm-6" data-aos="fade-up">
+            <div class="card h-100">
+                @if (!string.IsNullOrEmpty(p.ImagePath))
+                {
+                    <img src="@p.ImagePath" class="card-img-top" style="height:160px;object-fit:cover;border-radius:12px 12px 0 0;" alt="@p.Name" />
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center bg-light" style="height:160px;border-radius:12px 12px 0 0">
+                        <i class="fas fa-box fa-3x text-muted opacity-25"></i>
+                    </div>
+                }
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="fw-bold mb-0">@p.Name</h6>
+                        @if (p.DiscountPercentage > 0)
+                        { <span class="badge bg-danger">@p.DiscountPercentage%</span> }
+                    </div>
+                    <div class="text-muted small mb-2"><code>@p.Code</code> · @p.CategoryName</div>
+
+                    @if (!string.IsNullOrEmpty(p.Description))
+                    { <p class="text-muted small mb-2" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">@p.Description</p> }
+
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">جملة</small>
+                            <span class="fw-bold text-warning">@String.Format("{0:N2}", p.WholesalePrice) ر.س</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">مفرق</small>
+                            <span class="fw-bold text-primary">@String.Format("{0:N2}", p.RetailPrice) ر.س</span>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(p.CartonType) || p.BaseQuantity.HasValue)
+                    {
+                        <div class="text-muted small mb-2">
+                            <i class="fas fa-cubes me-1"></i>
+                            @(p.CartonType ?? "") @(p.BaseQuantity.HasValue ? $"({p.BaseQuantity} وحدة)" : "")
+                        </div>
+                    }
+
+                    @if (p.ExpirationDate.HasValue)
+                    {
+                        var daysLeft = (p.ExpirationDate.Value - DateTime.Today).Days;
+                        var badgeClass = daysLeft < 30 ? "bg-danger" : daysLeft < 90 ? "bg-warning text-dark" : "bg-success";
+                        <div class="mb-2">
+                            <span class="badge @badgeClass">
+                                <i class="fas fa-calendar-times me-1"></i>
+                                انتهاء: @p.ExpirationDate.Value.ToString("yyyy/MM/dd")
+                            </span>
+                        </div>
+                    }
+
+                    <div class="text-muted small mb-3">
+                        <i class="fas fa-cubes me-1"></i>
+                        @p.Inventories.Sum(i => i.Quantity) وحدة في @p.Inventories.Count مستودع
+                    </div>
+
+                    <div class="d-flex gap-1">
+                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-warning flex-fill"><i class="fas fa-edit me-1"></i>تعديل</a>
+                        <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('هل أنت متأكد من حذف المنتج @p.Name؟')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger btn-action"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center text-muted py-5">
+            <i class="fas fa-box fa-3x mb-3 d-block opacity-25"></i>لا توجد منتجات
+        </div>
+    }
+</div>

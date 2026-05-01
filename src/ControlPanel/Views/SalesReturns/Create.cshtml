@@ -1,0 +1,94 @@
+@model DeliverySystem.Application.DTOs.CreateSalesReturnDto
+@{
+    ViewData["Title"] = "طلب مرتجع جديد";
+}
+<div class="page-header mb-4" data-aos="fade-down">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+    <h4><i class="fas fa-undo-alt me-2 text-danger"></i>طلب مرتجع جديد</h4>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">الفاتورة (اختياري)</label>
+                    <select name="InvoiceId" class="form-select">
+                        <option value="">— بدون فاتورة محددة —</option>
+                        @if (ViewBag.Invoices != null)
+                        {
+                            foreach (var i in ViewBag.Invoices)
+                            { <option value="@i.Id">@i.InvoiceNumber — @i.CustomerName</option> }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">سبب المرتجع <span class="text-danger">*</span></label>
+                    <input type="text" name="Reason" class="form-control" required placeholder="اذكر السبب..." />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">ملاحظات</label>
+                    <textarea name="Notes" class="form-control" rows="2" placeholder="ملاحظات إضافية..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">صورة المرتجع</label>
+                    <input type="file" name="photo" class="form-control" accept="image/*" />
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h6><i class="fas fa-boxes me-2"></i>الأصناف المرتجعة</h6>
+            <div id="items">
+                <div class="row g-2 mb-2 item-row">
+                    <div class="col-md-6">
+                        <select name="Items[0].ProductId" class="form-select" required>
+                            <option value="">— اختر منتج —</option>
+                            @if (ViewBag.Products != null)
+                            {
+                                foreach (var p in ViewBag.Products)
+                                { <option value="@p.Id">@p.Name</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="Items[0].Quantity" class="form-control" min="1" placeholder="الكمية" required />
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="Items[0].Notes" class="form-control" placeholder="ملاحظة" />
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addItem()">
+                <i class="fas fa-plus me-1"></i>إضافة صنف
+            </button>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger"><i class="fas fa-paper-plane me-2"></i>إرسال طلب المرتجع</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let idx = 1;
+const products = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    (ViewBag.Products as IEnumerable<DeliverySystem.Application.DTOs.ProductDto> ?? Enumerable.Empty<DeliverySystem.Application.DTOs.ProductDto>())
+    .Select(p => new { p.Id, p.Name })
+));
+
+function addItem() {
+    const opts = products.map(p => `<option value="${p.Id}">${p.Name}</option>`).join('');
+    document.getElementById('items').insertAdjacentHTML('beforeend', `
+        <div class="row g-2 mb-2 item-row">
+            <div class="col-md-6"><select name="Items[${idx}].ProductId" class="form-select" required><option value="">— اختر منتج —</option>${opts}</select></div>
+            <div class="col-md-3"><input type="number" name="Items[${idx}].Quantity" class="form-control" min="1" placeholder="الكمية" required /></div>
+            <div class="col-md-2"><input type="text" name="Items[${idx}].Notes" class="form-control" placeholder="ملاحظة" /></div>
+            <div class="col-md-1"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.item-row').remove()"><i class="fas fa-trash"></i></button></div>
+        </div>`);
+    idx++;
+}
+</script>
+}

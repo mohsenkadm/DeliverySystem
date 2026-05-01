@@ -1,0 +1,61 @@
+@model UpdateBranchDto
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "تعديل الفرع";
+    var allRegions = new List<string> { "الكاظمية", "المنصور", "الكرادة", "الرصافة" , "أخرى" };
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-edit"></i> تعديل الفرع</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@ViewBag.BranchId" method="post">
+    @Html.AntiForgeryToken()
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-7">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-code-branch me-2"></i>بيانات الفرع</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Name" class="form-label">اسم الفرع <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Region" class="form-label">المنطقة</label>
+                            <select asp-for="Region" class="form-select">
+                                <option value="">-- اختر المنطقة --</option>
+                                @foreach (var r in allRegions)
+                                { <option value="@r" selected="@(Model.Region==r?"selected":null)">@r</option> }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">رقم الهاتف</label>
+                            <input asp-for="Phone" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">العنوان</label>
+                            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">الفرع نشط</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-body d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="fas fa-save me-2"></i>حفظ التعديلات</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary flex-fill">إلغاء</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts { @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} }

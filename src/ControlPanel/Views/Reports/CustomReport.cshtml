@@ -1,0 +1,119 @@
+@using DeliverySystem.Domain.Enums
+@{
+    ViewData["Title"] = "تقرير مخصص";
+    var invoices = ViewBag.Invoices as System.Collections.IEnumerable;
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-sliders-h me-2 text-info"></i>تقرير مخصص</h4>
+        <p class="text-muted mb-0">استخرج تقريراً حسب التاريخ والموظف والعميل والحالة</p>
+    </div>
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i>طباعة</button>
+        <button onclick="exportPDF()" class="btn btn-outline-danger btn-sm"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+    </div>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-filter me-2"></i>معايير البحث</div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small">من تاريخ</label>
+                <input type="date" name="from" value="@ViewBag.From" class="form-control"/>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">إلى تاريخ</label>
+                <input type="date" name="to" value="@ViewBag.To" class="form-control"/>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">الموظف/السائق</label>
+                <select name="employeeId" class="form-select">
+                    <option value="">— الكل —</option>
+                    @if (ViewBag.Employees != null)
+                    {
+                        foreach (var e in ViewBag.Employees)
+                        { <option value="@e.Id" selected="@(ViewBag.SelectedEmployee?.ToString()==e.Id.ToString())">@e.FullName</option> }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">العميل</label>
+                <select name="customerId" class="form-select">
+                    <option value="">— الكل —</option>
+                    @if (ViewBag.Customers != null)
+                    {
+                        foreach (var c in ViewBag.Customers)
+                        { <option value="@c.Id" selected="@(ViewBag.SelectedCustomer?.ToString()==c.Id.ToString())">@c.FullName</option> }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">الحالة</label>
+                <select name="status" class="form-select">
+                    <option value="">— الكل —</option>
+                    @foreach (var s in Enum.GetValues<InvoiceStatus>())
+                    {
+                        var txt = s switch { InvoiceStatus.Pending=>"معلق",InvoiceStatus.Accepted=>"مقبول",InvoiceStatus.Rejected=>"مرفوض",InvoiceStatus.Completed=>"مكتمل",InvoiceStatus.AwaitingDelivery=>"في التوصيل",InvoiceStatus.Deferred=>"مؤجل",InvoiceStatus.WarehouseProcessing=>"قيد التجهيز",InvoiceStatus.Delivered=>"تم التسليم",_=>"" };
+                        <option value="@s" selected="@(ViewBag.SelectedStatus==s.ToString())">@txt</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search me-1"></i>استخراج</button>
+                <a asp-action="CustomReport" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (invoices != null)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalAmount).ToString("N0")</div><div class="stat-label">إجمالي الفواتير (ر.س)</div></div></div></div>
+        <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalPaid).ToString("N0")</div><div class="stat-label">المدفوع (ر.س)</div></div></div></div>
+        <div class="col-md-4"><div class="stat-card card text-white bg-danger" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.TotalDebt).ToString("N0")</div><div class="stat-label">المتبقي (ر.س)</div></div></div></div>
+    </div>
+
+    <div class="card" data-aos="fade-up">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light"><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>العميل</th><th>الموظف</th><th class="text-end">الإجمالي</th><th class="text-end">المدفوع</th><th class="text-end">المتبقي</th><th>الحالة</th></tr></thead>
+                    <tbody>
+                        @foreach (dynamic i in invoices)
+                        {
+                            <tr>
+                                <td><a asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id"><code>@i.InvoiceNumber</code></a></td>
+                                <td>@i.OrderDate.ToString("yyyy/MM/dd")</td>
+                                <td>@(i.Customer?.FullName ?? "—")</td>
+                                <td>@(i.Employee?.FullName ?? "—")</td>
+                                <td class="text-end">@i.TotalAmount.ToString("N2")</td>
+                                <td class="text-end text-success">@i.PaidAmount.ToString("N2")</td>
+                                <td class="text-end @(i.TotalAmount - i.PaidAmount > 0 ? "text-danger" : "text-success")">@((i.TotalAmount - i.PaidAmount).ToString("N2"))</td>
+                                <td><span class="badge bg-secondary">@i.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5 text-muted" data-aos="fade-up">
+        <i class="fas fa-search fa-3x mb-3"></i>
+        <p>حدد المعايير المطلوبة واضغط "استخراج" لعرض النتائج</p>
+    </div>
+}
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function exportPDF() {
+    html2pdf().set({margin:10,filename:'custom-report.pdf',html2canvas:{scale:2},jsPDF:{orientation:'landscape',format:'a4'}})
+              .from(document.querySelector('.page-content')).save();
+}
+</script>
+}

@@ -1,0 +1,230 @@
+@model InvoiceDto
+@{
+    ViewData["Title"] = "تفاصيل الفاتورة " + Model.InvoiceNumber;
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-file-invoice-dollar"></i> فاتورة <code>@Model.InvoiceNumber</code></h1>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm no-print"><i class="fas fa-print me-1"></i>طباعة</button>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm no-print"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Invoice Info -->
+    <div class="col-lg-4" data-aos="fade-up">
+        <div class="card mb-3">
+            <div class="card-header"><i class="fas fa-info-circle"></i> معلومات الفاتورة</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-6 text-muted">رقم الفاتورة</dt>
+                    <dd class="col-6"><code>@Model.InvoiceNumber</code></dd>
+                    <dt class="col-6 text-muted">التاريخ</dt>
+                    <dd class="col-6">@Model.OrderDate.ToString("yyyy/MM/dd")</dd>
+                    <dt class="col-6 text-muted">العميل</dt>
+                    <dd class="col-6">@Model.CustomerName</dd>
+                    <dt class="col-6 text-muted">الموظف</dt>
+                    <dd class="col-6">@(Model.EmployeeName ?? "-")</dd>
+                    <dt class="col-6 text-muted">حالة الطلب</dt>
+                    <dd class="col-6">
+                        @{
+                            var sc = Model.Status switch {
+                                InvoiceStatus.Pending           => "badge-pending",
+                                InvoiceStatus.Accepted          => "badge-accepted",
+                                InvoiceStatus.Rejected          => "badge-rejected",
+                                InvoiceStatus.Completed         => "badge-completed",
+                                InvoiceStatus.AwaitingDelivery  => "badge-awaiting",
+                                InvoiceStatus.Deferred          => "badge-deferred",
+                                InvoiceStatus.WarehouseProcessing => "badge-warehouse",
+                                InvoiceStatus.Delivered         => "badge-delivered",
+                                _ => "badge-pending"
+                            };
+                        }
+                        <span class="badge-status @sc">@Model.StatusText</span>
+                    </dd>
+                    <dt class="col-6 text-muted">حالة الدفع</dt>
+                    <dd class="col-6">
+                        @{
+                            var pc = Model.PaymentStatus switch {
+                                PaymentStatus.Unpaid => "badge-unpaid", PaymentStatus.PartialPaid => "badge-partial", PaymentStatus.FullPaid => "badge-fullpaid", _ => "badge-unpaid"
+                            };
+                        }
+                        <span class="badge-status @pc">@Model.PaymentStatusText</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="card mb-3">
+            <div class="card-header"><i class="fas fa-coins"></i> ملخص المبالغ</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">إجمالي الفاتورة</span>
+                    <strong>@String.Format("{0:N2}", Model.TotalAmount) ر.س</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom text-success">
+                    <span>المبلغ المدفوع</span>
+                    <strong>@String.Format("{0:N2}", Model.PaidAmount) ر.س</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 @(Model.RemainingAmount > 0 ? "text-danger" : "text-success")">
+                    <span>المبلغ المتبقي</span>
+                    <strong>@String.Format("{0:N2}", Model.RemainingAmount) ر.س</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card no-print">
+            <div class="card-header"><i class="fas fa-bolt"></i> إجراءات سير العمل</div>
+            <div class="card-body d-grid gap-2">
+
+                @* ─── Pending: قبول / رفض / تأجيل ─── *@
+                @if (Model.Status == InvoiceStatus.Pending)
+                {
+                    <form asp-action="Accept" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success w-100"
+                                onclick="return confirm('قبول الفاتورة وإحالتها للمستودع؟')">
+                            <i class="fas fa-check me-2"></i>قبول الفاتورة
+                        </button>
+                    </form>
+                    <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger w-100"
+                                onclick="return confirm('رفض هذه الفاتورة؟')">
+                            <i class="fas fa-times me-2"></i>رفض الفاتورة
+                        </button>
+                    </form>
+                    <form asp-action="Defer" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-secondary w-100">
+                            <i class="fas fa-clock me-2"></i>تأجيل
+                        </button>
+                    </form>
+                }
+
+                @* ─── Accepted: إحالة للمستودع ─── *@
+                @if (Model.Status == InvoiceStatus.Accepted)
+                {
+                    <div class="alert alert-success py-2 mb-1">
+                        <i class="fas fa-check-circle me-1"></i>تمت الموافقة — بانتظار تجهيز المستودع
+                    </div>
+                    <form asp-action="StartWarehouseProcessing" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="fas fa-cogs me-2"></i>بدء التجهيز في المستودع
+                        </button>
+                    </form>
+                }
+
+                @* ─── WarehouseProcessing: تعيين سائق وإرسال ─── *@
+                @if (Model.Status == InvoiceStatus.WarehouseProcessing)
+                {
+                    <div class="alert alert-warning py-2 mb-1">
+                        <i class="fas fa-warehouse me-1"></i>المستودع يجهز الطلب — اختر سائقاً للتوصيل
+                    </div>
+                    <form asp-action="DispatchDriver" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <select name="employeeId" class="form-select" required>
+                            <option value="">-- اختر سائق --</option>
+                            @if (ViewBag.Drivers != null)
+                            {
+                                foreach (var drv in ViewBag.Drivers)
+                                {
+                                    <option value="@drv.Id">@drv.FullName</option>
+                                }
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary" title="إرسال مع السائق">
+                            <i class="fas fa-truck"></i>
+                        </button>
+                    </form>
+                }
+
+                @* ─── AwaitingDelivery: في الطريق ─── *@
+                @if (Model.Status == InvoiceStatus.AwaitingDelivery)
+                {
+                    <div class="alert alert-info py-2 mb-0">
+                        <i class="fas fa-truck-fast me-1"></i>السائق في الطريق لتوصيل الطلب
+                    </div>
+                }
+
+                @* ─── Delivered: تم التسليم ─── *@
+                @if (Model.Status == InvoiceStatus.Delivered)
+                {
+                    <div class="alert alert-success py-2 mb-0">
+                        <i class="fas fa-box-open me-1"></i>تم تسليم الطلب — بانتظار تسوية المبلغ
+                    </div>
+                }
+
+                @* ─── Payment actions (any status with remaining balance) ─── *@
+                @if (Model.RemainingAmount > 0 &&
+                     Model.Status != InvoiceStatus.Pending &&
+                     Model.Status != InvoiceStatus.Rejected)
+                {
+                    <hr class="my-1" />
+                    <form asp-action="PayPartial" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="number" name="amount" step="0.01" min="0.01" max="@Model.RemainingAmount"
+                               class="form-control" placeholder="مبلغ جزئي..." required />
+                        <button type="submit" class="btn btn-outline-success" title="تسجيل دفعة">
+                            <i class="fas fa-dollar-sign"></i>
+                        </button>
+                    </form>
+                    <form asp-action="PayFull" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-check-double me-2"></i>دفع كامل (@Model.RemainingAmount.ToString("N2") ر.س)
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Items -->
+    <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-box"></i> تفاصيل المنتجات</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>المنتج</th>
+                                <th>الكمية</th>
+                                <th>سعر الوحدة</th>
+                                <th>الخصم</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int row = 1;}
+                            @foreach (var d in Model.Details)
+                            {
+                                <tr>
+                                    <td>@row</td>
+                                    <td>@d.ProductName</td>
+                                    <td>@d.Quantity</td>
+                                    <td>@String.Format("{0:N2}", d.UnitPrice) ر.س</td>
+                                    <td>@String.Format("{0:N2}", d.Discount) ر.س</td>
+                                    <td class="fw-bold">@String.Format("{0:N2}", d.SubTotal) ر.س</td>
+                                </tr>
+                                row++;
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <td colspan="5" class="text-end fw-bold">الإجمالي</td>
+                                <td class="fw-bold text-primary">@String.Format("{0:N2}", Model.TotalAmount) ر.س</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

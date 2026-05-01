@@ -1,0 +1,148 @@
+@model UpdateOfferDto
+@using DeliverySystem.Application.DTOs
+@using DeliverySystem.Domain.Enums
+@{
+    ViewData["Title"] = "تعديل العرض";
+    var offerTypes = ViewBag.OfferTypes as List<(OfferType Type, string Label)> ?? [];
+    var products = ViewBag.Products as IEnumerable<DeliverySystem.Application.DTOs.ProductDto> ?? [];
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-edit"></i> تعديل العرض</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@ViewBag.OfferId" method="post">
+    @Html.AntiForgeryToken()
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-tag me-2"></i>بيانات العرض</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Name" class="form-label">اسم العرض <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label">وصف العرض</label>
+                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ProductId" class="form-label">المنتج (اختياري - اتركه فارغاً لتطبيق العرض على الكل)</label>
+                            <select asp-for="ProductId" class="form-select">
+                                <option value="">-- جميع المنتجات --</option>
+                                @foreach (var p in products)
+                                { <option value="@p.Id" selected="@(Model.ProductId == p.Id ? "selected" : null)">@p.Name</option> }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PromoCode" class="form-label">كود البروموكود (اختياري)</label>
+                            <input asp-for="PromoCode" class="form-control" />
+                            <small class="text-muted">اتركه فارغاً إذا كان العرض تلقائياً</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-percent me-2"></i>نوع العرض والقيمة</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="OfferType" class="form-label">نوع العرض <span class="text-danger">*</span></label>
+                            <select asp-for="OfferType" class="form-select" id="offerTypeSelect" onchange="toggleFields()">
+                                @foreach (var t in offerTypes)
+                                { <option value="@((int)t.Type)" selected="@(Model.OfferType == t.Type ? "selected" : null)">@t.Label</option> }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6" id="discountValueField" style="display:none;">
+                            <label asp-for="DiscountValue" class="form-label">القيمة</label>
+                            <div class="input-group">
+                                <input asp-for="DiscountValue" type="number" step="0.01" min="0" class="form-control" />
+                                <span class="input-group-text" id="discountUnit">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="freeQuantityField" style="display:none;">
+                            <label asp-for="FreeQuantity" class="form-label">الكمية المجانية</label>
+                            <input asp-for="FreeQuantity" type="number" min="1" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MinimumQuantity" class="form-label">الحد الأدنى للشراء</label>
+                            <input asp-for="MinimumQuantity" type="number" min="1" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-calendar-alt me-2"></i>فترة العرض</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label asp-for="StartDate" class="form-label">تاريخ البداية</label>
+                            <input asp-for="StartDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="EndDate" class="form-label">تاريخ الانتهاء</label>
+                            <input asp-for="EndDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">نشط</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card" data-aos="fade-up" style="position:sticky;top:20px;">
+                <div class="card-header"><i class="fas fa-info-circle me-2"></i>معلومات الأنواع</div>
+                <div class="card-body">
+                    <div class="alert alert-info p-2 small mb-2">
+                        <strong>اشتر X واحصل على Y:</strong> يضاف المنتج المجاني تلقائياً للفاتورة
+                    </div>
+                    <div class="alert alert-warning p-2 small mb-2">
+                        <strong>خصم بالنسبة:</strong> يُطبق نسبة خصم على سعر المنتج
+                    </div>
+                    <div class="alert alert-primary p-2 small mb-2">
+                        <strong>سعر ثابت:</strong> يُغير سعر المنتج إلى قيمة محددة
+                    </div>
+                    <div class="alert alert-secondary p-2 small">
+                        <strong>عرض مخصص:</strong> قيمة يدخلها المستخدم عند تطبيق العرض
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary w-100 mb-2"><i class="fas fa-save me-2"></i>حفظ التعديلات</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">إلغاء</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+function toggleFields() {
+    const type = parseInt(document.getElementById('offerTypeSelect').value);
+    const discField = document.getElementById('discountValueField');
+    const freeField = document.getElementById('freeQuantityField');
+    const unit = document.getElementById('discountUnit');
+    // 0=BuyOneGetOne,1=BuyOneGetTwo,2=BuyOneGetThree,3=Discount,4=FixedPrice,5=Custom
+    discField.style.display = (type === 3 || type === 4 || type === 5) ? 'block' : 'none';
+    freeField.style.display  = (type <= 2) ? 'block' : 'none';
+    if (type === 3) unit.textContent = '%';
+    else if (type === 4) unit.textContent = 'ر.س';
+    else unit.textContent = '';
+}
+document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

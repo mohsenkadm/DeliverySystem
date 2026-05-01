@@ -1,0 +1,174 @@
+@model UpdateEmployeeDto
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "تعديل بيانات الموظف";
+    var allRoles      = ViewBag.AllRoles   as List<string> ?? [];
+    var allRegions    = ViewBag.AllRegions as List<string> ?? [];
+    var currentId     = ViewBag.CurrentIdImage as string;
+    var currentPhoto  = ViewBag.CurrentPhoto   as string;
+    var selectedRoles = Model.SelectedRoles ?? [];
+    var selectedAreas = Model.SelectedAreas ?? [];
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-user-edit"></i> تعديل بيانات الموظف</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@ViewBag.EmployeeId" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-id-card me-2"></i>البيانات الأساسية</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label">اسم الموظف <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">رقم الهاتف <span class="text-danger">*</span></label>
+                            <input asp-for="Phone" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">العنوان السكني</label>
+                            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="EmployeeType" class="form-label">النوع</label>
+                            <select asp-for="EmployeeType" class="form-select">
+                                <option value="Individual"     selected="@(Model.EmployeeType=="Individual"?"selected":null)">فرد</option>
+                                <option value="Representative" selected="@(Model.EmployeeType=="Representative"?"selected":null)">مندوب</option>
+                                <option value="Wholesale"      selected="@(Model.EmployeeType=="Wholesale"?"selected":null)">جملة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Region" class="form-label">المنطقة</label>
+                            <select asp-for="Region" class="form-select">
+                                <option value="">-- اختر المنطقة --</option>
+                                @foreach (var r in allRegions)
+                                {
+                                    <option value="@r" selected="@(Model.Region == r ? "selected" : null)">@r</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Branch" class="form-label">الفرع</label>
+                            <input asp-for="Branch" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CarNumber" class="form-label">رقم السيارة</label>
+                            <input asp-for="CarNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CarType" class="form-label">نوع السيارة</label>
+                            <input asp-for="CarType" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">الموظف نشط</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-map-marker-alt me-2"></i>المناطق المعينة</div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        @foreach (var region in allRegions)
+                        {
+                            <div class="col-md-4 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedAreas" value="@region"
+                                           id="edit_area_@region.Replace(" ","_")" class="form-check-input"
+                                           @(selectedAreas.Contains(region) ? "checked" : "") />
+                                    <label for="edit_area_@region.Replace(" ","_")" class="form-check-label">@region</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-briefcase me-2"></i>الأدوار الوظيفية</div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        @foreach (var role in allRoles)
+                        {
+                            <div class="col-md-4 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedRoles" value="@role"
+                                           id="edit_role_@role.Replace(" ","_")" class="form-check-input"
+                                           @(selectedRoles.Contains(role) ? "checked" : "") />
+                                    <label for="edit_role_@role.Replace(" ","_")" class="form-check-label">@role</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-camera me-2"></i>الصورة الشخصية</div>
+                <div class="card-body text-center">
+                    <div id="photoPreview" class="mb-3">
+                        @if (!string.IsNullOrEmpty(currentPhoto))
+                        { <img src="@currentPhoto" class="img-fluid rounded" style="max-height:120px;object-fit:cover;" /> }
+                        else
+                        { <div class="avatar-circle mx-auto" style="width:80px;height:80px;font-size:30px;"><i class="fas fa-user"></i></div> }
+                    </div>
+                    <label class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-upload me-1"></i>تغيير الصورة
+                        <input type="file" name="photo" accept="image/*" class="d-none" onchange="previewImg(this,'photoPreview')" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-id-badge me-2"></i>صورة الهوية</div>
+                <div class="card-body text-center">
+                    <div id="idPreview" class="mb-3">
+                        @if (!string.IsNullOrEmpty(currentId))
+                        { <img src="@currentId" class="img-fluid rounded" style="max-height:100px;object-fit:cover;" /> }
+                        else
+                        { <div style="height:80px;background:#f8fafc;border:2px dashed #e2e8f0;border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-id-card fa-2x text-muted"></i></div> }
+                    </div>
+                    <label class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fas fa-upload me-1"></i>تغيير صورة الهوية
+                        <input type="file" name="idImage" accept="image/*" class="d-none" onchange="previewImg(this,'idPreview')" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-100 mb-2"><i class="fas fa-save me-2"></i>حفظ التعديلات</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">إلغاء</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+function previewImg(input, containerId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById(containerId).innerHTML =
+            `<img src="${e.target.result}" class="img-fluid rounded" style="max-height:120px;object-fit:cover;" />`;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

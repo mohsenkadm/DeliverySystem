@@ -1,0 +1,95 @@
+@using DeliverySystem.Domain.Enums
+@{
+    ViewData["Title"] = "تقرير تحصيل النقد";
+    var payments = ViewBag.Payments as List<DeliverySystem.Domain.Entities.Payment> ?? new();
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-money-bill-wave me-2 text-success"></i>تحصيل النقد</h4>
+        <p class="text-muted mb-0">تتبع المبالغ المحصّلة حسب الموظف والنوع</p>
+    </div>
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i>طباعة</button>
+        <button onclick="exportPDF()" class="btn btn-outline-danger btn-sm"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+    </div>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto"><label class="form-label small mb-1">من</label><input type="date" name="from" value="@ViewBag.From" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><label class="form-label small mb-1">إلى</label><input type="date" name="to" value="@ViewBag.To" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search me-1"></i>تصفية</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="stat-card card text-white bg-success" data-aos="zoom-in"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.GrandTotal).ToString("N0")</div><div class="stat-label">إجمالي التحصيلات (ر.س)</div></div></div></div>
+    <div class="col-md-4"><div class="stat-card card text-white bg-primary" data-aos="zoom-in" data-aos-delay="100"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.Verified).ToString("N0")</div><div class="stat-label">محقق (ر.س)</div></div></div></div>
+    <div class="col-md-4"><div class="stat-card card text-white bg-warning" data-aos="zoom-in" data-aos-delay="200"><div class="card-body text-center"><div class="stat-number">@((decimal)ViewBag.Pending).ToString("N0")</div><div class="stat-label">بانتظار التحقق (ر.س)</div></div></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8" data-aos="fade-up">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-user-tie me-2"></i>تحصيلات بحسب الموظف</div>
+            <div class="card-body"><div style="height:280px"><canvas id="empChart"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie me-2"></i>توزيع أنواع الدفع</div>
+            <div class="card-body"><div style="height:280px"><canvas id="typeChart"></canvas></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-list me-2"></i>سجل التحصيلات (@payments.Count عملية)</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light"><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>الموظف</th><th>العميل</th><th>الحالة</th></tr></thead>
+                <tbody>
+                    @foreach (var p in payments)
+                    {
+                        <tr>
+                            <td>@p.PaidAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td><span class="badge bg-secondary">@(p.Type switch { PaymentType.CustomerToDriver => "عميل→سائق", PaymentType.CustomerToRepresentative => "عميل→مندوب", PaymentType.DriverToCompany => "سائق→إدارة", PaymentType.RepresentativeToCompany => "مندوب→إدارة", _ => "" })</span></td>
+                            <td class="fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td>@(p.PaidByEmployee?.FullName ?? "—")</td>
+                            <td>@(p.Customer?.FullName ?? "—")</td>
+                            <td>@(p.IsVerified ? Html.Raw("<span class='badge bg-success'>محققة</span>") : Html.Raw("<span class='badge bg-warning text-dark'>معلقة</span>"))</td>
+                        </tr>
+                    }
+                    @if (!payments.Any()) { <tr><td colspan="6" class="text-center py-4 text-muted">لا توجد بيانات</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const empLabels  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.EmpLabels  ?? new List<string>()));
+const empTotals  = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.EmpTotals  ?? new List<decimal>()));
+const typeLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.TypeLabels ?? new List<string>()));
+const typeTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.TypeTotals ?? new List<decimal>()));
+
+new Chart(document.getElementById('empChart'), {
+    type: 'bar', data: { labels: empLabels, datasets: [{ label: 'المحصّل (ر.س)', data: empTotals, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 5 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+});
+new Chart(document.getElementById('typeChart'), {
+    type: 'doughnut', data: { labels: typeLabels, datasets: [{ data: typeTotals, backgroundColor: ['#4f46e5','#10b981','#f59e0b','#06b6d4'], borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo' } } } } }
+});
+
+function exportPDF() {
+    html2pdf().set({ margin: 10, filename: 'cash-collection.pdf', html2canvas: { scale: 2 }, jsPDF: { orientation: 'portrait', format: 'a4' } })
+              .from(document.querySelector('.page-content')).save();
+}
+</script>
+}

@@ -1,0 +1,161 @@
+@model IEnumerable<EmployeeDto>
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "إدارة الموظفين";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-users-cog"></i> إدارة الموظفين</h1>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="ExportExcel" class="btn btn-success btn-sm no-print">
+            <i class="fas fa-file-excel me-1"></i>تصدير Excel
+        </a>
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i>إضافة موظف
+        </a>
+    </div>
+</div>
+
+<!-- فلاتر البحث -->
+<div class="card mb-4" data-aos="fade-up">
+    <div class="card-body py-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small text-muted">بحث</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="اسم الموظف أو رقم الهاتف" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">نوع الموظف</label>
+                <select name="employeeType" class="form-select">
+                    <option value="">-- جميع الأنواع --</option>
+                    <option value="Individual"     selected="@(ViewBag.EmployeeType=="Individual"?"selected":null)">فرد</option>
+                    <option value="Representative" selected="@(ViewBag.EmployeeType=="Representative"?"selected":null)">مندوب</option>
+                    <option value="Wholesale"      selected="@(ViewBag.EmployeeType=="Wholesale"?"selected":null)">جملة</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>تطبيق</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- جدول الموظفين -->
+<div class="card" data-aos="fade-up">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>الموظف</th>
+                        <th>الهاتف</th>
+                        <th>النوع</th>
+                        <th>الأدوار</th>
+                        <th>المنطقة / الفرع</th>
+                        <th>السيارة</th>
+                        <th>الحالة</th>
+                        <th class="no-print">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(emp.PhotoPath))
+                                    {
+                                        <img src="@emp.PhotoPath" alt="صورة" class="rounded-circle" style="width:38px;height:38px;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-circle" style="width:38px;height:38px;font-size:15px;">@(emp.FullName.Length > 0 ? emp.FullName[0].ToString() : "م")</div>
+                                    }
+                                    <div>
+                                        <div class="fw-bold">@emp.FullName</div>
+                                        <small class="text-muted">@emp.Username</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><i class="fas fa-phone text-muted me-1"></i>@emp.Phone</td>
+                            <td>
+                                @{
+                                    var typeClass = emp.EmployeeType switch {
+                                        "Individual"     => "bg-primary",
+                                        "Representative" => "bg-success",
+                                        "Wholesale"      => "bg-warning text-dark",
+                                        _                => "bg-secondary"
+                                    };
+                                    var typeLabel = emp.EmployeeType switch {
+                                        "Individual"     => "فرد",
+                                        "Representative" => "مندوب",
+                                        "Wholesale"      => "جملة",
+                                        _                => emp.EmployeeType
+                                    };
+                                }
+                                <span class="badge @typeClass">@typeLabel</span>
+                            </td>
+                            <td>
+                                @if (emp.RolesList.Count > 0)
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var role in emp.RolesList.Take(2))
+                                        {
+                                            <span class="badge bg-light text-dark border" style="font-size:11px;">@role</span>
+                                        }
+                                        @if (emp.RolesList.Count > 2)
+                                        {
+                                            <span class="badge bg-light text-muted border" style="font-size:11px;">+@(emp.RolesList.Count - 2)</span>
+                                        }
+                                    </div>
+                                }
+                                else { <span class="text-muted small">—</span> }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(emp.Region)) { <div><i class="fas fa-map-marker-alt text-danger me-1"></i>@emp.Region</div> }
+                                @if (!string.IsNullOrEmpty(emp.Branch)) { <small class="text-muted"><i class="fas fa-building me-1"></i>@emp.Branch</small> }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(emp.CarNumber))
+                                {
+                                    <div><i class="fas fa-car text-primary me-1"></i>@emp.CarNumber</div>
+                                    @if (!string.IsNullOrEmpty(emp.CarType)) { <small class="text-muted">@emp.CarType</small> }
+                                }
+                                else { <span class="text-muted small">—</span> }
+                            </td>
+                            <td>
+                                @if (emp.IsActive)
+                                { <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>نشط</span> }
+                                else
+                                { <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>غير نشط</span> }
+                            </td>
+                            <td class="no-print">
+                                <div class="d-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-info btn-action" title="تفاصيل">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-warning btn-action" title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@emp.Id" method="post" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف؟')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-action" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center py-5 text-muted"><i class="fas fa-users fa-2x mb-2 d-block"></i>لا يوجد موظفون</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

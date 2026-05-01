@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - نظام ادارة المبيعات والتوصيل</title>
+    <!-- Bootstrap 5 RTL -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" />
+    <!-- Google Font Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- AOS Animation -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+<!-- ─── Sidebar ─────────────────────────────────────────────────────────── -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-truck-fast me-2"></i>
+        <span>نظام ادارة المبيعات والتوصيل</span>
+    </div>
+    <div class="sidebar-menu">
+        <div class="menu-label">الرئيسية</div>
+        <a asp-controller="Dashboard" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Dashboard"?"active":"")">
+            <i class="fas fa-tachometer-alt"></i><span>لوحة القيادة</span>
+        </a>
+        <div class="menu-label">إدارة المستخدمين</div>
+        <a asp-controller="Customers" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Customers"?"active":"")">
+            <i class="fas fa-users"></i><span>العملاء</span>
+        </a>
+        <a asp-controller="Employees" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Employees"?"active":"")">
+            <i class="fas fa-user-tie"></i><span>الموظفون</span>
+        </a>
+        <a asp-controller="Branches" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Branches"?"active":"")">
+            <i class="fas fa-code-branch"></i><span>الفروع</span>
+        </a>
+        <div class="menu-label">المنتجات والمخزون</div>
+        <a asp-controller="Categories" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Categories"?"active":"")">
+            <i class="fas fa-tags"></i><span>التصنيفات</span>
+        </a>
+        <a asp-controller="Warehouses" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Warehouses"?"active":"")">
+            <i class="fas fa-warehouse"></i><span>المستودعات</span>
+        </a>
+        <a asp-controller="Products" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Products"?"active":"")">
+            <i class="fas fa-box"></i><span>المنتجات</span>
+        </a>
+        <a asp-controller="Inventory" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Inventory"?"active":"")">
+            <i class="fas fa-cubes"></i><span>المخزون</span>
+        </a>
+        <a asp-controller="Offers" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Offers"?"active":"")">
+            <i class="fas fa-tags"></i><span>العروض والخصومات</span>
+        </a>
+        <div class="menu-label">المبيعات والمستودعات</div>
+        <a asp-controller="Invoices" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Invoices"?"active":"")">
+            <i class="fas fa-file-invoice-dollar"></i><span>الفواتير</span>
+        </a>
+        <a asp-controller="TransferOrders" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="TransferOrders"?"active":"")">
+            <i class="fas fa-exchange-alt"></i><span>طلبات النقل</span>
+        </a>
+        <a asp-controller="Payments" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Payments"?"active":"")">
+            <i class="fas fa-money-bill-wave"></i><span>المدفوعات</span>
+        </a>
+        <a asp-controller="Debts" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Debts"?"active":"")">
+            <i class="fas fa-hand-holding-usd"></i><span>تسوية الديون</span>
+        </a>
+        <a asp-controller="SalesReturns" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="SalesReturns"?"active":"")">
+            <i class="fas fa-undo-alt"></i><span>المرتجعات</span>
+        </a>
+        <div class="menu-label">التقارير</div>
+        <a asp-controller="Reports" asp-action="DailySales" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="DailySales"?"active":"")">
+            <i class="fas fa-calendar-day"></i><span>المبيعات اليومية</span>
+        </a>
+        <a asp-controller="Reports" asp-action="CashCollection" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="CashCollection"?"active":"")">
+            <i class="fas fa-hand-holding-usd"></i><span>تحصيل النقد</span>
+        </a>
+        <a asp-controller="Reports" asp-action="CashFlow" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="CashFlow"?"active":"")">
+            <i class="fas fa-random"></i><span>تدفق النقد</span>
+        </a>
+        <a asp-controller="Reports" asp-action="RepCollections" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="RepCollections"?"active":"")">
+            <i class="fas fa-user-tie"></i><span>تحصيلات المندوبين</span>
+        </a>
+        <a asp-controller="Reports" asp-action="DriverPerformance" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="DriverPerformance"?"active":"")">
+            <i class="fas fa-truck"></i><span>أداء السائقين</span>
+        </a>
+        <a asp-controller="Reports" asp-action="DebtReport" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="DebtReport"?"active":"")">
+            <i class="fas fa-balance-scale"></i><span>تقرير الديون</span>
+        </a>
+        <a asp-controller="Reports" asp-action="CustomReport" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="CustomReport"?"active":"")">
+            <i class="fas fa-sliders-h"></i><span>تقرير مخصص</span>
+        </a>
+        <a asp-controller="Reports" asp-action="CustomerStatement" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="CustomerStatement"?"active":"")">
+            <i class="fas fa-user-clock"></i><span>كشف حساب عميل</span>
+        </a>
+        <a asp-controller="Reports" asp-action="Analytics" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Reports"&&ViewContext.RouteData.Values["action"]?.ToString()=="Analytics"?"active":"")">
+            <i class="fas fa-chart-bar"></i><span>تحليل البيانات</span>
+        </a>
+        <div class="menu-label">الإدارة</div>
+        <a asp-controller="Notifications" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Notifications"?"active":"")">
+            <i class="fas fa-bell"></i><span>الإشعارات</span>
+        </a>
+        <a asp-controller="ActivityLogs" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="ActivityLogs"?"active":"")">
+            <i class="fas fa-history"></i><span>سجل النشاطات</span>
+        </a>
+        <a asp-controller="Settings" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Settings"?"active":"")">
+            <i class="fas fa-cog"></i><span>إعدادات النظام</span>
+        </a>
+        <a asp-controller="Admins" asp-action="Index" class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString()=="Admins"?"active":"")">
+            <i class="fas fa-user-shield"></i><span>المسؤولون</span>
+        </a>
+    </div>
+</div>
+
+<!-- ─── Main Content ──────────────────────────────────────────────────────── -->
+<div class="main-content" id="mainContent">
+
+    <!-- Navbar -->
+    <nav class="top-navbar">
+        <button class="btn btn-link sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars fs-5"></i>
+        </button>
+        <div class="navbar-title">@(ViewData["Title"] ?? "لوحة التحكم")</div>
+        <div class="navbar-actions">
+            <!-- إشعارات -->
+            <div class="dropdown">
+                <button class="btn btn-link position-relative" data-bs-toggle="dropdown">
+                    <i class="fas fa-bell fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="notifBadge">0</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-start notif-dropdown" id="notifList">
+                    <li class="dropdown-header">الإشعارات</li>
+                    <li><p class="text-center text-muted p-3 mb-0">لا توجد إشعارات جديدة</p></li>
+                </ul>
+            </div>
+            <!-- Dark Mode -->
+            <button class="btn btn-link" id="darkModeBtn" title="تبديل الوضع المظلم">
+                <i class="fas fa-moon fs-5" id="darkModeIcon"></i>
+            </button>
+            <!-- المستخدم -->
+            <div class="dropdown">
+                <button class="btn btn-link d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                    <div class="avatar-circle">@(Context.Session.GetString("AdminFullName")?.Substring(0,1) ?? "م")</div>
+                    <span class="d-none d-md-inline">@(Context.Session.GetString("AdminFullName") ?? "المسؤول")</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-start">
+                    <li><a class="dropdown-item text-muted small" href="#"><i class="fas fa-user me-2"></i>@(Context.Session.GetString("AdminUsername"))</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a asp-controller="Admins" asp-action="Index" class="dropdown-item">
+                            <i class="fas fa-user-shield me-2"></i>إدارة المسؤولين
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert" data-aos="fade-down">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert" data-aos="fade-down">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Page Content -->
+    <div class="page-content">
+        @RenderBody()
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <span>نظام ادارة المبيعات والتوصيل &copy; @DateTime.Now.Year — جميع الحقوق محفوظة</span>
+    </footer>
+</div>
+
+<!-- Bootstrap 5 RTL JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- AOS Animation -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SignalR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+<script>
+    // ─── Initialize AOS ───────────────────────────────────────────────────────
+    AOS.init({ duration: 600, once: true, easing: 'ease-out-cubic' });
+
+    // ─── Sidebar Toggle ───────────────────────────────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+    });
+
+    // ─── Dark Mode ────────────────────────────────────────────────────────────
+    const darkBtn = document.getElementById('darkModeBtn');
+    const darkIcon = document.getElementById('darkModeIcon');
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        darkIcon.classList.replace('fa-moon', 'fa-sun');
+    }
+    darkBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        darkIcon.classList.toggle('fa-moon', !isDark);
+        darkIcon.classList.toggle('fa-sun', isDark);
+    });
+
+    // ─── SignalR Notifications ────────────────────────────────────────────────
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hubs/notifications")
+        .withAutomaticReconnect()
+        .build();
+    let notifCount = 0;
+    connection.on("ReceiveNotification", (title, body) => {
+        notifCount++;
+        document.getElementById('notifBadge').textContent = notifCount;
+        const list = document.getElementById('notifList');
+        const item = document.createElement('li');
+        item.innerHTML = `<a class="dropdown-item notif-item"><strong>${title}</strong><br><small class="text-muted">${body}</small></a>`;
+        list.insertBefore(item, list.children[1]);
+    });
+    connection.start().catch(err => console.warn('SignalR:', err));
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

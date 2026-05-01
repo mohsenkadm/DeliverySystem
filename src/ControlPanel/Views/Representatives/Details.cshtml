@@ -1,0 +1,79 @@
+@model RepresentativeDto
+@{
+    ViewData["Title"] = "تفاصيل المندوب - " + Model.FullName;
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-user-tie"></i> @Model.FullName</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit me-1"></i>تعديل</a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4" data-aos="fade-up">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <div class="avatar-circle mx-auto mb-3" style="width:80px;height:80px;font-size:32px;background:linear-gradient(135deg,#8b5cf6,#06b6d4)">
+                    @Model.FullName.Substring(0,1)
+                </div>
+                <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                @if (Model.IsActive)
+                {
+                    <span class="badge-status badge-accepted"><i class="fas fa-circle me-1" style="font-size:8px"></i>نشط</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-rejected">غير نشط</span>
+                }
+                <hr />
+                <dl class="row text-start mb-0">
+                    <dt class="col-5 text-muted"><i class="fas fa-phone me-1"></i>الهاتف</dt>
+                    <dd class="col-7">@Model.Phone</dd>
+                    <dt class="col-5 text-muted"><i class="fas fa-map-marker-alt me-1"></i>العنوان</dt>
+                    <dd class="col-7">@(string.IsNullOrEmpty(Model.Address) ? "-" : Model.Address)</dd>
+                    <dt class="col-5 text-muted"><i class="fas fa-user me-1"></i>اسم المستخدم</dt>
+                    <dd class="col-7"><code>@Model.Username</code></dd>
+                    <dt class="col-5 text-muted"><i class="fas fa-calendar me-1"></i>تاريخ التسجيل</dt>
+                    <dd class="col-7">@Model.CreatedAt.ToString("yyyy/MM/dd")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card text-center py-3">
+                    <div class="stat-value text-primary fs-2">@Model.CustomerCount</div>
+                    <div class="text-muted">عدد العملاء</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card text-center py-3">
+                    <div class="stat-value text-success fs-5">@String.Format("{0:N0}", Model.TotalCollected)</div>
+                    <div class="text-muted">إجمالي المحصّل (ر.س)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card text-center py-3">
+                    <div class="stat-value text-danger fs-5">@String.Format("{0:N0}", Model.TotalDebt)</div>
+                    <div class="text-muted">إجمالي الديون (ر.س)</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-bar"></i> الأداء</div>
+            <div class="card-body">
+                @{
+                    var total = Model.TotalCollected + Model.TotalDebt;
+                    var pct   = total > 0 ? (int)((Model.TotalCollected / total) * 100) : 0;
+                }
+                <label class="form-label text-muted">نسبة التحصيل</label>
+                <div class="progress" style="height:20px">
+                    <div class="progress-bar bg-success" role="progressbar" style="width:@pct%">@pct%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

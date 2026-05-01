@@ -1,0 +1,121 @@
+@using DeliverySystem.Domain.Enums
+@{
+    ViewData["Title"] = "تدفق النقد";
+    var payments = ViewBag.Payments as List<DeliverySystem.Domain.Entities.Payment> ?? new();
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-random me-2 text-primary"></i>تدفق النقد</h4>
+        <p class="text-muted mb-0">تتبع كامل: العميل ← المندوب/السائق ← الإدارة</p>
+    </div>
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i>طباعة</button>
+        <button onclick="exportPDF()" class="btn btn-outline-danger btn-sm"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+    </div>
+</div>
+
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto"><label class="form-label small mb-1">من</label><input type="date" name="from" value="@ViewBag.From" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><label class="form-label small mb-1">إلى</label><input type="date" name="to" value="@ViewBag.To" class="form-control form-control-sm"/></div>
+            <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search me-1"></i>تصفية</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Flow Diagram -->
+<div class="row g-3 mb-4 text-center">
+    <div class="col-md-4" data-aos="fade-up">
+        <div class="card border-primary">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h5 class="text-primary">العملاء</h5>
+                <div class="display-6 fw-bold">@((decimal)ViewBag.CustomerToRep).ToString("N0")</div>
+                <small class="text-muted">ر.س دفعوا للمندوبين/السائقين</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1 d-flex align-items-center justify-content-center" data-aos="fade-up">
+        <i class="fas fa-arrow-left fa-2x text-muted"></i>
+    </div>
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="card border-warning">
+            <div class="card-body">
+                <i class="fas fa-user-tie fa-2x text-warning mb-2"></i>
+                <h5 class="text-warning">المندوبون / السائقون</h5>
+                <div class="display-6 fw-bold">@((decimal)ViewBag.RepToCompany).ToString("N0")</div>
+                <small class="text-muted">ر.س أسلموا للإدارة</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1 d-flex align-items-center justify-content-center" data-aos="fade-up">
+        <i class="fas fa-arrow-left fa-2x text-muted"></i>
+    </div>
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="card border-success">
+            <div class="card-body">
+                <i class="fas fa-building fa-2x text-success mb-2"></i>
+                <h5 class="text-success">الإدارة</h5>
+                <div class="display-6 fw-bold">@((decimal)ViewBag.Verified).ToString("N0")</div>
+                <small class="text-muted">ر.س محقق ومستلم</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{ var gap = (decimal)ViewBag.CustomerToRep - (decimal)ViewBag.RepToCompany; }
+@if (gap > 0)
+{
+    <div class="alert alert-warning mb-4" data-aos="fade-up">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>فجوة في التدفق النقدي:</strong> @gap.ToString("N2") ر.س لم يتم تسليمها للإدارة بعد
+    </div>
+}
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-list me-2"></i>سجل العمليات</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light"><tr><th>التاريخ</th><th>المرحلة</th><th>من</th><th>إلى</th><th>المبلغ</th><th>الحالة</th></tr></thead>
+                <tbody>
+                    @foreach (var p in payments)
+                    {
+                        <tr>
+                            <td>@p.PaidAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>
+                                @switch (p.Type)
+                                {
+                                    case PaymentType.CustomerToDriver:
+                                        <span class="badge bg-info">عميل → سائق</span> break;
+                                    case PaymentType.CustomerToRepresentative:
+                                        <span class="badge bg-primary">عميل → مندوب</span> break;
+                                    case PaymentType.DriverToCompany:
+                                        <span class="badge bg-success">سائق → إدارة</span> break;
+                                    case PaymentType.RepresentativeToCompany:
+                                        <span class="badge bg-success">مندوب → إدارة</span> break;
+                                }
+                            </td>
+                            <td>@(p.Customer?.FullName ?? p.PaidByEmployee?.FullName ?? "—")</td>
+                            <td>@(p.ReceivedByEmployee?.FullName ?? "الإدارة")</td>
+                            <td class="fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td>@(p.IsVerified ? Html.Raw("<span class='badge bg-success'>محققة</span>") : Html.Raw("<span class='badge bg-warning text-dark'>معلقة</span>"))</td>
+                        </tr>
+                    }
+                    @if (!payments.Any()) { <tr><td colspan="6" class="text-center py-4 text-muted">لا توجد بيانات للفترة المحددة</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function exportPDF() {
+    html2pdf().set({margin:10,filename:'cash-flow.pdf',html2canvas:{scale:2},jsPDF:{orientation:'landscape',format:'a4'}})
+              .from(document.querySelector('.page-content')).save();
+}
+</script>
+}

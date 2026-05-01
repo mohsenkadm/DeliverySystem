@@ -1,0 +1,100 @@
+@model List<DeliverySystem.Application.DTOs.EmployeePermissionDto>
+@{
+    ViewData["Title"] = $"صلاحيات {ViewBag.EmployeeName}";
+    var pages = ViewBag.Pages as List<string> ?? new();
+    var existing = Model.ToDictionary(p => p.PageName);
+}
+<div class="page-header mb-4" data-aos="fade-down">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+    <h4><i class="fas fa-shield-alt me-2 text-primary"></i>صلاحيات: @ViewBag.EmployeeName</h4>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-lock me-2"></i>تخصيص الصلاحيات</span>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll()">تبديل الكل</button>
+    </div>
+    <div class="card-body">
+        <form asp-action="SavePermissions" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="employeeId" value="@ViewBag.EmployeeId" />
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="min-width:160px">الصفحة</th>
+                            <th class="text-center">عرض</th>
+                            <th class="text-center">إضافة</th>
+                            <th class="text-center">تعديل</th>
+                            <th class="text-center">حذف</th>
+                            <th class="text-center no-print">الكل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < pages.Count; i++)
+                        {
+                            var page = pages[i];
+                            existing.TryGetValue(page, out var p);
+                            var pageLabel = page switch
+                            {
+                                "Dashboard" => "لوحة القيادة", "Customers" => "العملاء",
+                                "Employees" => "الموظفون", "Branches" => "الفروع",
+                                "Categories" => "التصنيفات", "Warehouses" => "المستودعات",
+                                "Products" => "المنتجات", "Inventory" => "المخزون",
+                                "Offers" => "العروض", "Invoices" => "الفواتير",
+                                "TransferOrders" => "طلبات النقل", "Payments" => "المدفوعات",
+                                "SalesReturns" => "المرتجعات", "Reports" => "التقارير",
+                                "Debts" => "الديون", "Notifications" => "الإشعارات",
+                                "ActivityLogs" => "سجل النشاطات", "Settings" => "الإعدادات",
+                                _ => page
+                            };
+                            <tr>
+                                <td><strong>@pageLabel</strong><br/><small class="text-muted">@(page)</small></td>
+                                <input type="hidden" name="permissions[@i].PageName" value="@(page)" />
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@i].CanView" value="true" @(p?.CanView==true?"checked":"") class="form-check-input perm-check" onchange="updateRow(this)" />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@i].CanAdd" value="true" @(p?.CanAdd==true?"checked":"") class="form-check-input perm-check" />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@i].CanEdit" value="true" @(p?.CanEdit==true?"checked":"") class="form-check-input perm-check" />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@i].CanDelete" value="true" @(p?.CanDelete==true?"checked":"") class="form-check-input perm-check" />
+                                </td>
+                                <td class="text-center no-print">
+                                    <button type="button" class="btn btn-xs btn-outline-secondary" style="font-size:.75rem;padding:2px 8px"
+                                            onclick="toggleRow(this)">كل صف</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>حفظ الصلاحيات</button>
+                <a asp-action="Details" asp-route-id="@ViewBag.EmployeeId" class="btn btn-outline-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function toggleRow(btn) {
+    const row = btn.closest('tr');
+    const checks = row.querySelectorAll('.perm-check');
+    const allChecked = [...checks].every(c => c.checked);
+    checks.forEach(c => c.checked = !allChecked);
+}
+
+function toggleAll() {
+    const checks = document.querySelectorAll('.perm-check');
+    const allChecked = [...checks].every(c => c.checked);
+    checks.forEach(c => c.checked = !allChecked);
+}
+</script>
+}

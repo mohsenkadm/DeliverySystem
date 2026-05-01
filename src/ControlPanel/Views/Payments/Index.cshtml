@@ -1,0 +1,124 @@
+@model IEnumerable<DeliverySystem.Application.DTOs.PaymentDto>
+@{
+    ViewData["Title"] = "سجل المدفوعات";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-money-bill-wave me-2 text-success"></i>المدفوعات</h4>
+        <p class="text-muted mb-0">تتبع وتحقق من المدفوعات</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card card text-white bg-success" data-aos="zoom-in">
+            <div class="card-body text-center">
+                <div class="stat-number">@Model.Where(p=>p.IsVerified).Sum(p=>p.Amount).ToString("N0")</div>
+                <div class="stat-label">إجمالي المحقق (ر.س)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card card text-white bg-warning" data-aos="zoom-in" data-aos-delay="100">
+            <div class="card-body text-center">
+                <div class="stat-number">@Model.Where(p=>!p.IsVerified).Sum(p=>p.Amount).ToString("N0")</div>
+                <div class="stat-label">غير محقق (ر.س)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card card text-white bg-info" data-aos="zoom-in" data-aos-delay="200">
+            <div class="card-body text-center">
+                <div class="stat-number">@Model.Count(p=>!p.IsVerified)</div>
+                <div class="stat-label">دفعات بانتظار التحقق</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card card text-white bg-primary" data-aos="zoom-in" data-aos-delay="300">
+            <div class="card-body text-center">
+                <div class="stat-number">@Model.Count()</div>
+                <div class="stat-label">إجمالي الدفعات</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="card mb-3" data-aos="fade-up">
+    <div class="card-body py-2">
+        <div class="btn-group">
+            <a asp-action="Index" class="btn btn-sm @(ViewBag.VerifiedFilter==null?"btn-primary":"btn-outline-primary")">الكل</a>
+            <a asp-action="Index" asp-route-verified="false" class="btn btn-sm @(ViewBag.VerifiedFilter==false?"btn-warning":"btn-outline-warning")">غير محققة</a>
+            <a asp-action="Index" asp-route-verified="true" class="btn btn-sm @(ViewBag.VerifiedFilter==true?"btn-success":"btn-outline-success")">محققة</a>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card" data-aos="fade-up">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>النوع</th>
+                        <th>المبلغ</th>
+                        <th>الفاتورة</th>
+                        <th>العميل</th>
+                        <th>من (دافع)</th>
+                        <th>الحالة</th>
+                        <th>التاريخ</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td><span class="badge bg-secondary">@p.TypeText</span></td>
+                            <td class="fw-bold text-success">@p.Amount.ToString("N2") ر.س</td>
+                            <td>@(p.InvoiceNumber ?? "—")</td>
+                            <td>@(p.CustomerName ?? "—")</td>
+                            <td>@(p.PaidByEmployeeName ?? "—")</td>
+                            <td>
+                                @if (p.IsVerified)
+                                {
+                                    <span class="badge bg-success">محققة ✓</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">بانتظار التحقق</span>
+                                }
+                            </td>
+                            <td>@p.PaidAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>
+                                @if (!p.IsVerified)
+                                {
+                                    <form asp-action="Verify" asp-route-id="@p.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('تأكيد استلام هذه الدفعة؟')">
+                                            <i class="fas fa-check"></i> تحقق
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">@(p.ReceivedByEmployeeName ?? "—")</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="9" class="text-center text-muted py-4">لا توجد دفعات</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

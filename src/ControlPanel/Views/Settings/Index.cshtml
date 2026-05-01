@@ -1,0 +1,104 @@
+@model DeliverySystem.Application.DTOs.SystemSettingsDto
+@{
+    ViewData["Title"] = "إعدادات النظام";
+}
+<div class="page-header mb-4" data-aos="fade-down">
+    <h4 class="mb-1"><i class="fas fa-cog me-2 text-primary"></i>إعدادات النظام</h4>
+    <p class="text-muted mb-0">تخصيص اسم النظام والشعار والمعلومات العامة</p>
+</div>
+
+<form asp-action="Index" method="post" enctype="multipart/form-data" data-aos="fade-up">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row g-4">
+        <!-- General -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-info-circle me-2"></i>المعلومات العامة</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="SystemName" class="form-label">اسم النظام <span class="text-danger">*</span></label>
+                            <input asp-for="SystemName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactPhone" class="form-label">رقم التواصل</label>
+                            <input asp-for="ContactPhone" class="form-control" placeholder="+966..." />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactEmail" class="form-label">البريد الإلكتروني</label>
+                            <input asp-for="ContactEmail" class="form-control" type="email" placeholder="info@@..." />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">العنوان</label>
+                            <input asp-for="Address" class="form-control" placeholder="العنوان الكامل..." />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="FooterText" class="form-label">نص التذييل</label>
+                            <input asp-for="FooterText" class="form-control" placeholder="نص يظهر في أسفل التقارير..." />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PrimaryColor" class="form-label">اللون الرئيسي</label>
+                            <div class="input-group">
+                                <input asp-for="PrimaryColor" type="color" class="form-control form-control-color" value="@(Model.PrimaryColor ?? "#4f46e5")" />
+                                <input type="text" class="form-control" value="@(Model.PrimaryColor ?? "#4f46e5")" id="colorText" onchange="document.querySelector('[name=PrimaryColor]').value=this.value" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-image me-2"></i>شعار النظام</div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.LogoPath))
+                    {
+                        <img src="@Model.LogoPath" class="img-fluid rounded mb-3" style="max-height:120px" alt="الشعار الحالي" />
+                        <p class="text-muted small">الشعار الحالي</p>
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height:120px">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    }
+                    <input type="file" name="logo" class="form-control" accept="image/*" id="logoInput" onchange="previewLogo(this)" />
+                    <img id="logoPreview" src="" class="img-fluid rounded mt-2" style="max-height:80px;display:none" alt="معاينة" />
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header"><i class="fas fa-clock me-2"></i>آخر تحديث</div>
+                <div class="card-body text-muted text-center">
+                    @Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm")
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>حفظ الإعدادات
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">إلغاء</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+function previewLogo(input) {
+    if (input.files && input.files[0]) {
+        const r = new FileReader();
+        r.onload = e => { const p = document.getElementById('logoPreview'); p.src = e.target.result; p.style.display = 'block'; };
+        r.readAsDataURL(input.files[0]);
+    }
+}
+document.querySelector('[name="PrimaryColor"]').addEventListener('input', e => {
+    document.getElementById('colorText').value = e.target.value;
+});
+</script>
+}

@@ -1,0 +1,181 @@
+@model IEnumerable<InvoiceDto>
+@{
+    ViewData["Title"] = "إدارة الفواتير";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير</h1>
+    <div class="d-flex gap-2 no-print">
+        <a asp-action="ExportExcel" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>تصدير</a>
+        <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>فاتورة جديدة</a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4" data-aos="fade-up">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalAmount) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">إجمالي الفواتير</div>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="80">
+        <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalPaid) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">إجمالي المدفوع</div>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-value">@String.Format("{0:N2}", ViewBag.TotalRemaining) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">الديون المتبقية</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">رقم الفاتورة</label>
+                <input type="text" name="invoiceNumber" value="@Context.Request.Query["invoiceNumber"]" class="form-control" placeholder="INV-..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">العميل</label>
+                <select name="customerId" class="form-select">
+                    <option value="">-- الكل --</option>
+                    @if (ViewBag.Customers != null)
+                    {
+                        foreach (var c in ViewBag.Customers)
+                        {
+                            <option value="@c.Id">@c.FullName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الحالة</label>
+                <select name="status" class="form-select">
+                    <option value="">-- الكل --</option>
+                    <option value="0">معلق</option>
+                    <option value="1">مؤجل</option>
+                    <option value="2">في التوصيل</option>
+                    <option value="3">مكتمل</option>
+                    <option value="4">مرفوض</option>
+                    <option value="5">مقبول</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>بحث</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">إعادة ضبط</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card" data-aos="fade-up">
+    <div class="card-header">
+        <i class="fas fa-list"></i> الفواتير
+        <span class="badge bg-primary ms-2">@Model.Count()</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>رقم الفاتورة</th>
+                        <th>التاريخ</th>
+                        <th>العميل</th>
+                        <th>السائق</th>
+                        <th>المبلغ الكلي</th>
+                        <th>المدفوع</th>
+                        <th>المتبقي</th>
+                        <th>حالة الدفع</th>
+                        <th>حالة الطلب</th>
+                        <th class="no-print">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var inv in Model)
+                    {
+                        <tr>
+                            <td><code class="text-primary">@inv.InvoiceNumber</code></td>
+                            <td><small>@inv.OrderDate.ToString("yyyy/MM/dd")</small></td>
+                            <td>@inv.CustomerName</td>
+                            <td>@(inv.EmployeeName ?? "-")</td>
+                            <td class="fw-bold">@String.Format("{0:N2}", inv.TotalAmount)</td>
+                            <td class="text-success">@String.Format("{0:N2}", inv.PaidAmount)</td>
+                            <td class="@(inv.RemainingAmount > 0 ? "text-danger fw-bold" : "text-success")">
+                                @String.Format("{0:N2}", inv.RemainingAmount)
+                            </td>
+                            <td>
+                                @{
+                                    var payClass = inv.PaymentStatus switch {
+                                        PaymentStatus.Unpaid => "badge-unpaid",
+                                        PaymentStatus.PartialPaid => "badge-partial",
+                                        PaymentStatus.FullPaid => "badge-fullpaid",
+                                        _ => "badge-unpaid"
+                                    };
+                                }
+                                <span class="badge-status @payClass">@inv.PaymentStatusText</span>
+                            </td>
+                            <td>
+                                @{
+                                    var statusClass = inv.Status switch {
+                                        InvoiceStatus.Pending => "badge-pending",
+                                        InvoiceStatus.Accepted => "badge-accepted",
+                                        InvoiceStatus.Rejected => "badge-rejected",
+                                        InvoiceStatus.Completed => "badge-completed",
+                                        InvoiceStatus.AwaitingDelivery => "badge-awaiting",
+                                        InvoiceStatus.Deferred => "badge-deferred",
+                                        _ => "badge-pending"
+                                    };
+                                }
+                                <span class="badge-status @statusClass">@inv.StatusText</span>
+                            </td>
+                            <td class="no-print">
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a asp-action="Details" asp-route-id="@inv.Id" class="btn btn-sm btn-outline-primary btn-action" title="تفاصيل"><i class="fas fa-eye"></i></a>
+                                    @if (inv.Status == InvoiceStatus.Pending)
+                                    {
+                                        <form asp-action="Accept" asp-route-id="@inv.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success btn-action" title="قبول"><i class="fas fa-check"></i></button>
+                                        </form>
+                                        <form asp-action="Reject" asp-route-id="@inv.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-danger btn-action" title="رفض"><i class="fas fa-times"></i></button>
+                                        </form>
+                                        <form asp-action="Defer" asp-route-id="@inv.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-secondary btn-action" title="تأجيل"><i class="fas fa-clock"></i></button>
+                                        </form>
+                                    }
+                                    @if (inv.RemainingAmount > 0)
+                                    {
+                                        <form asp-action="PayFull" asp-route-id="@inv.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('تسجيل الدفع الكامل للفاتورة؟')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-success btn-action" title="دفع كامل"><i class="fas fa-dollar-sign"></i></button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="10" class="text-center text-muted py-5"><i class="fas fa-file-invoice fa-3x mb-3 d-block opacity-25"></i>لا توجد فواتير</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

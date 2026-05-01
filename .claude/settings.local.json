@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(@\\(\"Categories\", \"Warehouses\", \"Inventories\", \"Invoices\", \"Notifications\", \"ActivityLogs\"\\) | ForEach-Object { Get-ChildItem -Path \"d:\\\\DeliverySystem\\\\src\\\\Application\\\\Features\\\\$_\" -Recurse -File })",
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet add *)"
+    ]
+  }
+}

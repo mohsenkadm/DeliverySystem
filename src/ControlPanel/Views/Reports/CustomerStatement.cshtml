@@ -1,0 +1,143 @@
+@{
+    ViewData["Title"] = "كشف حساب عميل";
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-user-clock"></i> كشف حساب عميل</h1>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm no-print"><i class="fas fa-print me-1"></i>طباعة</button>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4 no-print" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-search"></i> اختر العميل</div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">العميل <span class="text-danger">*</span></label>
+                <select name="customerId" class="form-select" required>
+                    <option value="">-- اختر العميل --</option>
+                    @if (ViewBag.Customers != null)
+                    {
+                        foreach (var c in ViewBag.Customers)
+                        {
+                            if (ViewBag.SelectedCustomerId != null && (int)ViewBag.SelectedCustomerId == c.Id)
+                            {
+                                <option value="@c.Id" selected>@c.FullName</option>
+                            }
+                            else
+                            {
+                                <option value="@c.Id">@c.FullName</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="from" value="@(ViewBag.From != null ? ((DateTime)ViewBag.From).ToString("yyyy-MM-dd") : "")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="to" value="@(ViewBag.To != null ? ((DateTime)ViewBag.To).ToString("yyyy-MM-dd") : "")" class="form-control" />
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (ViewBag.Customer != null)
+{
+    var customer = ViewBag.Customer;
+    var invoices = ViewBag.Invoices as IEnumerable<dynamic>;
+
+    <!-- Customer Info -->
+    <div class="card mb-4" data-aos="fade-up">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-circle" style="width:60px;height:60px;font-size:24px">@((string)customer.FullName).Substring(0,1)</div>
+                        <div>
+                            <h4 class="mb-0 fw-bold">@customer.FullName</h4>
+                            <p class="text-muted mb-0"><i class="fas fa-phone me-1"></i>@customer.Phone · @customer.Address</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="fw-bold fs-3 @(customer.TotalDebt > 0 ? "text-danger" : "text-success")">
+                        @String.Format("{0:N2}", customer.TotalDebt) ر.س
+                    </div>
+                    <small class="text-muted">رصيد الديون الحالي</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3" data-aos="fade-up">
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-file-invoice"></i></div><div class="stat-value">@(customer.TotalInvoices)</div><div class="stat-label">إجمالي الفواتير</div></div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="60">
+            <div class="stat-card accent"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalAmount ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">إجمالي المبيعات</div></div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="120">
+            <div class="stat-card success"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalPaid ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">المدفوع</div></div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="180">
+            <div class="stat-card danger"><div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div><div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalRemaining ?? 0) <small style="font-size:12px">ر.س</small></div><div class="stat-label">المتبقي</div></div>
+        </div>
+    </div>
+
+    <!-- Invoices -->
+    <div class="card" data-aos="fade-up">
+        <div class="card-header"><i class="fas fa-list"></i> سجل الفواتير</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>رقم الفاتورة</th>
+                            <th>التاريخ</th>
+                            <th>السائق</th>
+                            <th>المبلغ</th>
+                            <th>المدفوع</th>
+                            <th>المتبقي</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (invoices != null)
+                        {
+                            foreach (var inv in invoices)
+                            {
+                                <tr>
+                                    <td><code>@inv.InvoiceNumber</code></td>
+                                    <td><small>@((DateTime)inv.OrderDate).ToString("yyyy/MM/dd")</small></td>
+                                    <td>@(inv.DriverName ?? "-")</td>
+                                    <td>@String.Format("{0:N2}", inv.TotalAmount) ر.س</td>
+                                    <td class="text-success">@String.Format("{0:N2}", inv.PaidAmount) ر.س</td>
+                                    <td class="@((decimal)(inv.TotalAmount - inv.PaidAmount) > 0 ? "text-danger fw-bold" : "text-success")">
+                                        @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) ر.س
+                                    </td>
+                                    <td><span class="badge-status badge-@(inv.Status.ToString().ToLower())">@inv.StatusText</span></td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-primary fw-bold">
+                            <td colspan="3" class="text-end">الإجمالي</td>
+                            <td>@String.Format("{0:N2}", ViewBag.TotalAmount ?? 0) ر.س</td>
+                            <td class="text-success">@String.Format("{0:N2}", ViewBag.TotalPaid ?? 0) ر.س</td>
+                            <td class="text-danger">@String.Format("{0:N2}", ViewBag.TotalRemaining ?? 0) ر.س</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}

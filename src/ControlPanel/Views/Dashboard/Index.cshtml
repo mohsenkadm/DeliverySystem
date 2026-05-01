@@ -1,0 +1,296 @@
+@{
+    ViewData["Title"] = "لوحة القيادة";
+}
+
+<!-- ─── Page Header ──────────────────────────────────────────────────────── -->
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-tachometer-alt"></i> لوحة القيادة</h1>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm no-print">
+            <i class="fas fa-print me-1"></i> طباعة
+        </button>
+    </div>
+</div>
+
+<!-- ─── Stats Cards ──────────────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalSalesToday) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">مبيعات اليوم</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="80">
+        <div class="stat-card accent">
+            <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+            <div class="stat-value">@ViewBag.TotalOrders</div>
+            <div class="stat-label">إجمالي الطلبات</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="160">
+        <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-truck"></i></div>
+            <div class="stat-value">@ViewBag.ActiveDeliveries</div>
+            <div class="stat-label">التوصيلات النشطة</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="240">
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-value">@String.Format("{0:N0}", ViewBag.TotalDebt) <small style="font-size:14px">ر.س</small></div>
+            <div class="stat-label">الديون المتبقية</div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Secondary Stats ───────────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">@ViewBag.TotalCustomers</div>
+            <div class="stat-label">إجمالي العملاء</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="60">
+        <div class="stat-card accent">
+            <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+            <div class="stat-value">@ViewBag.TotalRepresentatives</div>
+            <div class="stat-label">المندوبين</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="120">
+        <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-car"></i></div>
+            <div class="stat-value">@ViewBag.TotalDrivers</div>
+            <div class="stat-label">السائقين</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="180">
+        <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-box"></i></div>
+            <div class="stat-value">@ViewBag.TotalProducts</div>
+            <div class="stat-label">المنتجات</div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Quick Actions ─────────────────────────────────────────────────────── -->
+<div class="card mb-4" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-bolt"></i> إجراءات سريعة</div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Customers" asp-action="Create" class="quick-action">
+                    <i class="fas fa-user-plus text-primary"></i><span>إضافة عميل</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Representatives" asp-action="Create" class="quick-action">
+                    <i class="fas fa-user-tie text-info"></i><span>إضافة مندوب</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Drivers" asp-action="Create" class="quick-action">
+                    <i class="fas fa-car text-warning"></i><span>إضافة سائق</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Invoices" asp-action="Create" class="quick-action">
+                    <i class="fas fa-file-invoice text-success"></i><span>إنشاء فاتورة</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Products" asp-action="Create" class="quick-action">
+                    <i class="fas fa-plus-circle text-danger"></i><span>إضافة منتج</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <a asp-controller="Inventory" asp-action="Create" class="quick-action">
+                    <i class="fas fa-cubes" style="color:#8b5cf6"></i><span>إضافة مخزون</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Charts Row ────────────────────────────────────────────────────────── -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-8" data-aos="fade-up">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-line"></i> مبيعات آخر 7 أيام</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie"></i> توزيع التصنيفات</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Recent Invoices ───────────────────────────────────────────────────── -->
+<div class="card mb-4" data-aos="fade-up">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-file-invoice-dollar"></i> آخر الفواتير</span>
+        <a asp-controller="Invoices" asp-action="Index" class="btn btn-sm btn-primary no-print">عرض الكل</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>رقم الفاتورة</th>
+                        <th>العميل</th>
+                        <th>السائق</th>
+                        <th>المبلغ</th>
+                        <th>المتبقي</th>
+                        <th>الحالة</th>
+                        <th class="no-print">تفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.RecentInvoices != null)
+                    {
+                        foreach (var inv in ViewBag.RecentInvoices)
+                        {
+                            <tr>
+                                <td><code>@inv.InvoiceNumber</code></td>
+                                <td>@inv.Customer?.FullName</td>
+                                @* <td>@(inv.Driver?.FullName ?? "-")</td> *@
+                                <td>@String.Format("{0:N2}", inv.TotalAmount) ر.س</td>
+                                <td class="@((inv.TotalAmount - inv.PaidAmount) > 0 ? "text-danger" : "text-success")">
+                                    @String.Format("{0:N2}", inv.TotalAmount - inv.PaidAmount) ر.س
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = inv.Status.ToString() switch {
+                                            "Pending" => "badge-pending",
+                                            "Accepted" => "badge-accepted",
+                                            "Rejected" => "badge-rejected",
+                                            "Completed" => "badge-completed",
+                                            "AwaitingDelivery" => "badge-awaiting",
+                                            "Deferred" => "badge-deferred",
+                                            _ => "badge-pending"
+                                        };
+                                        var statusText = inv.Status.ToString() switch {
+                                            "Pending" => "معلق",
+                                            "Accepted" => "مقبول",
+                                            "Rejected" => "مرفوض",
+                                            "Completed" => "مكتمل",
+                                            "AwaitingDelivery" => "في التوصيل",
+                                            "Deferred" => "مؤجل",
+                                            _ => "معلق"
+                                        };
+                                    }
+                                    <span class="badge-status @statusClass">@statusText</span>
+                                </td>
+                                <td class="no-print">
+                                    <a asp-controller="Invoices" asp-action="Details" asp-route-id="@inv.Id"
+                                       class="btn btn-sm btn-outline-primary btn-action">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Activity Log ──────────────────────────────────────────────────────── -->
+<div class="card" data-aos="fade-up">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-history"></i> آخر النشاطات</span>
+        <a asp-controller="ActivityLogs" asp-action="Index" class="btn btn-sm btn-primary no-print">عرض الكل</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead><tr><th>الإجراء</th><th>المنفذ</th><th>الدور</th><th>الوقت</th></tr></thead>
+                <tbody>
+                    @if (ViewBag.Activities != null)
+                    {
+                        foreach (var log in ViewBag.Activities)
+                        {
+                            <tr>
+                                <td>@log.Action</td>
+                                <td>@log.PerformedBy</td>
+                                <td><span class="badge bg-primary">@log.UserRole</span></td>
+                                <td><small class="text-muted">@log.Timestamp.ToString("yyyy/MM/dd HH:mm")</small></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// ─── Sales Line Chart ─────────────────────────────────────────────────────────
+const salesLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SalesLabels ?? new List<string>()));
+const salesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SalesData   ?? new List<decimal>()));
+
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: salesLabels,
+        datasets: [{
+            label: 'المبيعات (ر.س)',
+            data: salesData,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79,70,229,.1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#4f46e5',
+            pointRadius: 5,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ─── Category Pie Chart ───────────────────────────────────────────────────────
+const catLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.CategoryLabels ?? new List<string>()));
+const catData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.CategoryData   ?? new List<int>()));
+
+new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+        labels: catLabels,
+        datasets: [{
+            data: catData,
+            backgroundColor: ['#4f46e5','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 12 } } } },
+        cutout: '65%'
+    }
+});
+</script>
+}

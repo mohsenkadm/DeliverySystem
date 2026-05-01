@@ -1,0 +1,152 @@
+@model CreateCustomerDto
+@using DeliverySystem.Application.DTOs
+@{
+    ViewData["Title"] = "إضافة عميل جديد";
+    var allRegions = ViewBag.AllRegions as List<string> ?? [];
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-user-plus"></i> إضافة عميل جديد</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row g-4">
+
+        <!-- ── البيانات الأساسية ── -->
+        <div class="col-lg-8">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-user me-2"></i>بيانات العميل الأساسية</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label">اسم العميل <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" placeholder="الاسم الكامل" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StoreName" class="form-label">اسم المتجر</label>
+                            <input asp-for="StoreName" class="form-control" placeholder="اسم المتجر أو المحل" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">رقم الهاتف <span class="text-danger">*</span></label>
+                            <input asp-for="Phone" class="form-control" placeholder="05XXXXXXXX" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ClientType" class="form-label">نوع العميل</label>
+                            <select asp-for="ClientType" class="form-select">
+                                <option value="Individual">فرد</option>
+                                <option value="Wholesale">جملة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Username" class="form-label">اسم المستخدم <span class="text-danger">*</span></label>
+                            <input asp-for="Username" class="form-control" placeholder="username" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label">كلمة المرور <span class="text-danger">*</span></label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label">وصف / ملاحظات</label>
+                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="معلومات إضافية عن العميل"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">العنوان <span class="text-danger">*</span></label>
+                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="العنوان التفصيلي"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Region" class="form-label">المنطقة</label>
+                            <select asp-for="Region" class="form-select">
+                                <option value="">-- اختر المنطقة --</option>
+                                @foreach (var r in allRegions) { <option value="@r">@r</option> }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Branch" class="form-label">الفرع</label>
+                            <input asp-for="Branch" class="form-control" placeholder="اسم الفرع" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="EmployeeId" class="form-label">المندوب المسؤول</label>
+                            <select asp-for="EmployeeId" class="form-select">
+                                <option value="">-- اختر المندوب --</option>
+                                @if (ViewBag.Employees != null)
+                                {
+                                    foreach (var e in ViewBag.Employees)
+                                    { <option value="@e.Id">@e.FullName</option> }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── الموقع الجغرافي ── -->
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-map-marker-alt me-2"></i>الموقع الجغرافي (GPS)</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Latitude" class="form-label">خط العرض (Latitude)</label>
+                            <input asp-for="Latitude" type="number" step="0.000001" class="form-control" placeholder="24.7136" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Longitude" class="form-label">خط الطول (Longitude)</label>
+                            <input asp-for="Longitude" type="number" step="0.000001" class="form-control" placeholder="46.6753" />
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted"><i class="fas fa-info-circle me-1"></i>يمكنك الحصول على الإحداثيات من خرائط Google بالنقر بزر الفأرة الأيمن على الموقع</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── الصورة والإجراءات ── -->
+        <div class="col-lg-4">
+            <div class="card" data-aos="fade-up">
+                <div class="card-header"><i class="fas fa-store me-2"></i>صورة المتجر</div>
+                <div class="card-body text-center">
+                    <div id="storePreview" class="mb-3">
+                        <div style="height:130px;background:#f8fafc;border:2px dashed #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-store fa-2x mb-2 d-block"></i>
+                                <small>صورة المتجر</small>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-upload me-1"></i>رفع صورة المتجر
+                        <input type="file" name="storeImage" accept="image/*" class="d-none" onchange="previewImg(this,'storePreview')" />
+                    </label>
+                </div>
+            </div>
+            <div class="card mt-4" data-aos="fade-up">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-100 mb-2"><i class="fas fa-save me-2"></i>حفظ العميل</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">إلغاء</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+function previewImg(input, containerId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById(containerId).innerHTML =
+            `<img src="${e.target.result}" class="img-fluid rounded" style="max-height:130px;width:100%;object-fit:cover;" />`;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

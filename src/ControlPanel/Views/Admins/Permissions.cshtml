@@ -1,0 +1,100 @@
+@model List<AdminPermissionDto>
+@{
+    ViewData["Title"] = "صلاحيات " + ViewBag.AdminName;
+    int adminId       = (int)ViewBag.AdminId;
+    string adminName  = (string)ViewBag.AdminName;
+    var sysList       = (List<string>)ViewBag.Pages;
+}
+
+<div class="page-header" data-aos="fade-down">
+    <h1><i class="fas fa-key"></i> صلاحيات: @adminName</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-right me-1"></i>العودة</a>
+</div>
+
+<div class="card" data-aos="fade-up">
+    <div class="card-header"><i class="fas fa-shield-alt"></i> تحديد الصلاحيات لكل صفحة</div>
+    <div class="card-body">
+        <form asp-action="SavePermissions" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="adminId" value="@(adminId)" />
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>الصفحة</th>
+                            <th class="text-center" style="width:90px"><i class="fas fa-eye text-primary me-1"></i>عرض</th>
+                            <th class="text-center" style="width:90px"><i class="fas fa-plus-circle text-success me-1"></i>إضافة</th>
+                            <th class="text-center" style="width:90px"><i class="fas fa-edit text-warning me-1"></i>تعديل</th>
+                            <th class="text-center" style="width:90px"><i class="fas fa-trash text-danger me-1"></i>حذف</th>
+                            <th class="text-center" style="width:100px"><span class="text-muted">الكل</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rowNum = 0; }
+                        @foreach (var sysName in sysList)
+                        {
+                            var ex = Model?.FirstOrDefault(x => x.PageName == sysName);
+                            <tr>
+                                <td>
+                                    <input type="hidden" name="permissions[@(rowNum)].PageName" value="@(sysName)" />
+                                    <i class="fas fa-file-alt me-2 text-primary"></i><strong>@(sysName)</strong>
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@(rowNum)].CanView"
+                                           class="form-check-input perm-cb" data-row="@(rowNum)"
+                                           value="true" @(ex?.CanView == true ? "checked" : "") />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@(rowNum)].CanAdd"
+                                           class="form-check-input perm-cb" data-row="@(rowNum)"
+                                           value="true" @(ex?.CanAdd == true ? "checked" : "") />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@(rowNum)].CanEdit"
+                                           class="form-check-input perm-cb" data-row="@(rowNum)"
+                                           value="true" @(ex?.CanEdit == true ? "checked" : "") />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="permissions[@(rowNum)].CanDelete"
+                                           class="form-check-input perm-cb" data-row="@(rowNum)"
+                                           value="true" @(ex?.CanDelete == true ? "checked" : "") />
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            onclick="toggleRow(@(rowNum))">الكل</button>
+                                </td>
+                            </tr>
+                            rowNum++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(true)">
+                    <i class="fas fa-check-double me-1"></i>تحديد الجميع
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="toggleAll(false)">
+                    <i class="fas fa-times me-1"></i>إلغاء الجميع
+                </button>
+                <button type="submit" class="btn btn-primary ms-auto">
+                    <i class="fas fa-save me-2"></i>حفظ الصلاحيات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function toggleRow(n) {
+    const cbs = document.querySelectorAll('.perm-cb[data-row="' + n + '"]');
+    const any = [...cbs].some(c => !c.checked);
+    cbs.forEach(c => c.checked = any);
+}
+function toggleAll(state) {
+    document.querySelectorAll('.perm-cb').forEach(c => c.checked = state);
+}
+</script>
+}
